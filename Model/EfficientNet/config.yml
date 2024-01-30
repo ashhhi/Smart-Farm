@@ -1,0 +1,7 @@
+Image:
+  Width: 320
+  Height: 224
+Path:
+  Model: "model_save/EfficientUnet_13.h5"
+  Datasets_Detail: "image_path.txt"
+  Predict_Save: "/Users/shijunshen/Documents/Code/dataset/NYUv2pics/predict"
