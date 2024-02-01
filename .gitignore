@@ -1,1 +1,2 @@
-model_save
+Model/EfficientNet/model_save/
+*.yml

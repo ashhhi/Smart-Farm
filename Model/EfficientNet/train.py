@@ -1,6 +1,6 @@
 import numpy as np
 from tensorflow.keras.callbacks import ModelCheckpoint
-
+import os
 from Model.EfficientNet.evaluate import mean_relative_error
 from Model.EfficientNet.loss import loss2
 from model import efficientnet_b0 as create_model
@@ -8,8 +8,15 @@ import cv2 as cv
 import tensorflow as tf
 # tf.data.experimental.enable_debug_mode()
 # tf.config.run_functions_eagerly(True)
-import pdb
 import yaml
+import platform
+from tqdm import tqdm
+from Model.EfficientNet.DataLoader.NYU_DataLoader import Dataloader
+system = platform.system()
+
+if system == 'Windows':
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    gpus = tf.config.list_physical_devices('GPU')
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
@@ -34,18 +41,18 @@ def train():
 
 
 if __name__ == '__main__':
-    with open(image_path, 'r') as file:
-        lines = file.readlines()
-        images = []
-        labels = []
-        for item in lines:
-            image_path = item.split()[0]
-            label_path = item.split()[1]
-            image = preprocessing(cv.imread(image_path))
-            label = preprocessing(cv.imread(label_path, cv.IMREAD_GRAYSCALE))
-            images.append(image)
-            labels.append(label)
-        images = np.array(images)
-        labels = np.array(labels)
-
+    image_path, label_path = Dataloader()
+    images = []
+    labels = []
+    print('Load Data and Preprocess...')
+    for i in tqdm(range(len(image_path))):
+        image = image_path[i]
+        label = label_path[i]
+        image = preprocessing(cv.imread(image))
+        label = preprocessing(cv.imread(label, cv.IMREAD_GRAYSCALE))
+        images.append(image)
+        labels.append(label)
+    images = np.array(images)
+    labels = np.array(labels)
+    print('Finished and Start Training ...')
     train()

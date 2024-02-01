@@ -2,6 +2,8 @@ Image:
   Width: 320
   Height: 224
 Path:
-  Model: "model_save/EfficientUnet_13.h5"
+  image_path: "D:/dataset/NYU_DEPTH_V2/NYUv2pics/nyu_images"
+  label_path: "D:/dataset/NYU_DEPTH_V2/NYUv2pics/nyu_depths"
+  Model: "model_save/EfficientUnet_Final.h5"
   Datasets_Detail: "image_path.txt"
-  Predict_Save: "/Users/shijunshen/Documents/Code/dataset/NYUv2pics/predict"
+  Predict_Save: "D:/dataset/NYU_DEPTH_V2/NYUv2pics/predict"
