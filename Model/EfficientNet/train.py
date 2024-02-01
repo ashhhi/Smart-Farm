@@ -22,7 +22,6 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    image_path = yaml_data['Path']['Datasets_Detail']
 def preprocessing(image):
     image = cv.resize(image, (Width, Height))
     image = tf.convert_to_tensor(image, dtype=tf.float32)
