@@ -46,7 +46,7 @@ print(output.shape)
 
 
 # 创建保存图像的目录
-output_dir = "/Users/shijunshen/Documents/Code/dataset/NYUv2pics/predict"
+output_dir = r"D:\dataset\NYU_DEPTH_V2\NYUv2pics\predict"
 os.makedirs(output_dir, exist_ok=True)
 
 # 遍历数组并保存每个元素为图像文件
