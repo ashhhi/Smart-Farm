@@ -167,10 +167,10 @@ def efficient_net(width_coefficient,
                   drop_connect_rate=0.2,
                   activation="swish",
                   model_name="efficientnet"):
-    """Instantiates the EfficientNet architecture using given scaling coefficients.
+    """Instantiates the EfficientUNet_Depth architecture using given scaling coefficients.
 
       Reference:
-      - [EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks](
+      - [EfficientUNet_Depth: Rethinking Model Scaling for Convolutional Neural Networks](
           https://arxiv.org/abs/1905.11946) (ICML 2019)
 
       Optionally loads weights pre-trained on ImageNet.

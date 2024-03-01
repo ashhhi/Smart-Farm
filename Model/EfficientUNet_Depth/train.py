@@ -1,8 +1,8 @@
 import numpy as np
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
-from Model.EfficientNet.evaluate import mean_relative_error
-from Model.EfficientNet.loss import loss2
+from Model.EfficientUNet_Depth.evaluate import mean_relative_error
+from Model.EfficientUNet_Depth.loss import loss2
 from model import efficientnet_b0 as create_model
 import cv2 as cv
 import tensorflow as tf
@@ -11,7 +11,7 @@ import tensorflow as tf
 import yaml
 import platform
 from tqdm import tqdm
-from Model.EfficientNet.DataLoader.NYU_DataLoader import Dataloader
+from Model.EfficientUNet_Depth.DataLoader.NYU_DataLoader import Dataloader
 system = platform.system()
 
 if system == 'Windows':
