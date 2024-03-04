@@ -54,7 +54,7 @@ for i, image in enumerate(output):
     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
     image_name = f"image_{i}.png"
 
-    combined_image = np.concatenate((image, labels[i]), axis=1)
+    combined_image = np.concatenate((labels[i], image), axis=1)
     # 保存图像文件
     image_path = os.path.join(output_dir, image_name)
     cv.imwrite(image_path, combined_image)

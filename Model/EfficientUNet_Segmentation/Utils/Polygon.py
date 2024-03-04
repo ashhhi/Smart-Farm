@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 with open('../config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     image_path = yaml_data['Path']['image_path']
+    label_path = yaml_data['Path']['label_path']
 def polygon_to_mask(label_path, save_name):
     # Parse the XML label
     tree = ET.parse(label_path)
@@ -86,4 +87,4 @@ label = []
 for path, dir_list, file_list in g:
     for file_name in file_list:
         if file_name.split('.')[-1] == 'xml':
-            polygon_to_mask(str(os.path.join(path, file_name)), str(os.path.join("/Users/shijunshen/Documents/Code/dataset/02 Testing Pool/Image_and_labels/Dataset/mask", str(file_name.split('.')[0])+'.png')))
+            polygon_to_mask(str(os.path.join(path, file_name)), str(os.path.join(label_path, str(file_name.replace('.xml', '.png')))))
