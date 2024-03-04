@@ -73,12 +73,33 @@ for n in range(predicted_labels.shape[0]):
 
 
 
+# Save Together
 # 遍历数组并保存每个元素为图像文件
-for i, image in enumerate(colored_image):
-    # 构建图像文件名（例如，image_0.png, image_1.png, ...）
-    image_name = f"image_{i}.png"
+# for i, image in enumerate(colored_image):
+#     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
+#     image_name = f"{i}.png"
+#
+#     combined_image = np.concatenate((labels[i], image), axis=1)
+#     # 保存图像文件
+#     if not os.path.exists(output_dir):
+#         os.makedirs(output_dir)
+#     image_path = os.path.join(output_dir, image_name)
+#
+#     cv.imwrite(image_path, combined_image)
 
-    combined_image = np.concatenate((labels[i], image), axis=1)
+
+# Save Independently
+for i, image in enumerate(colored_image):
+    gt_path = os.path.join(output_dir, 'gt')
+    pred_path = os.path.join(output_dir, 'pred')
+    if not os.path.exists(gt_path):
+        os.makedirs(gt_path)
+    if not os.path.exists(pred_path):
+        os.makedirs(pred_path)
+    # 构建图像文件名（例如，image_0.png, image_1.png, ...）
+    image_name = f"{i}.png"
+
     # 保存图像文件
-    image_path = os.path.join(output_dir, image_name)
-    cv.imwrite(image_path, combined_image)
+    cv.imwrite(os.path.join(gt_path, image_name), labels[i])
+    cv.imwrite(os.path.join(pred_path, image_name), image)
+
