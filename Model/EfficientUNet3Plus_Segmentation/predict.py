@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 
 from DataLoader.TestPoolDataloader import Dataloader
-from model import efficientnet_b0 as create_model
+from model_5 import efficientnet_b0 as create_model
 import yaml
 
 with open('config.yml', 'r') as file:
@@ -57,13 +57,13 @@ for i in tqdm(range(len(image_path))):
     labels.append(label)
 images = np.array(images)
 labels = np.array(labels) * 255
-probability_vector = model.predict(images)
+probability_vector = model.predict(images)[0]
 color_map = {
     0: [255, 0, 0],    # Class 0: Red
     1: [0, 255, 0],    # Class 1: Green
     2: [0, 0, 255]     # Class 2: Blue
 }
-predicted_labels = np.argmax(probability_vector, axis=-1)[0]
+predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
 for n in range(predicted_labels.shape[0]):
     for i in range(Height):

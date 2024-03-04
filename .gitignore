@@ -1,3 +1,2 @@
-Model/EfficientUNet_Depth/model_save/
-Model/EfficientUNet_Segmentation/model_save/
 *.yml
+*.h5
