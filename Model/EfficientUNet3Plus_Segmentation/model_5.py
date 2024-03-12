@@ -20,6 +20,19 @@ CONV_KERNEL_INITIALIZER = {
     }
 }
 
+def adaptive_max_pool2d(x, output_size):
+    input_shape = x.shape
+    input_height = input_shape[1]
+    input_width = input_shape[2]
+
+    target_height = output_size[0]
+    target_width = output_size[1]
+
+    stride_height = input_height // target_height
+    stride_width = input_width // target_width
+    pooled = tf.keras.layers.MaxPooling2D((stride_height, stride_width))(x)
+    return pooled
+
 # 全连接层初始化方法
 DENSE_KERNEL_INITIALIZER = {
     'class_name': 'VarianceScaling',
@@ -251,12 +264,19 @@ def efficient_net(width_coefficient,
         Concatenate_waiting.append(x)
 
     # Unet3+ Architecture
-    base_channel = Concatenate_waiting[0].shape[-1]
+    base_channel = Concatenate_waiting[0].shape[-1]*2
 
-    e1_1 = Concatenate_waiting[0]
+    e1_1 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
+                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[0])
     e1_2 = tf.keras.layers.MaxPooling2D((2, 2))(Concatenate_waiting[0])
+    e1_2 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
+                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_2)
     e1_3 = tf.keras.layers.MaxPooling2D((4, 4))(Concatenate_waiting[0])
+    e1_3 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_3)
     e1_4 = tf.keras.layers.MaxPooling2D((8, 8))(Concatenate_waiting[0])
+    e1_4 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_4)
 
     e2_2 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                       kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[1])
@@ -350,10 +370,8 @@ def efficient_net(width_coefficient,
     # sort layer
     sort_layer = tf.keras.layers.Dropout(drop_connect_rate)(Concatenate_waiting[6])
     sort_layer = tf.keras.layers.Conv2D(3, (1, 1), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(sort_layer)
-    sort_layer = layers.GlobalMaxPooling2D()(sort_layer)
+    sort_layer = adaptive_max_pool2d(sort_layer, [1, 1])
     sort_layer = layers.Activation('softmax')(sort_layer)
-
-    sort_layer = tf.expand_dims(tf.expand_dims(sort_layer, axis=1), axis=1)
 
     output1 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
     output1 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output1)

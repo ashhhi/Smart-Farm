@@ -8,7 +8,6 @@ from DataLoader.TestPoolDataloader import Dataloader
 from model_5 import efficientnet_b0 as create_model
 import yaml
 
-
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
@@ -22,16 +21,15 @@ with open('config.yml', 'r') as file:
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
     if label:
-        blue = np.array([255, 0, 0])
+        red = np.array([0, 0, 255])
         green = np.array([0, 255, 0])
-        other = np.array([0, 0, 255])
         one_hot = np.zeros_like(image)
-        blue_mask = np.all(image == blue, axis=-1)
         green_mask = np.all(image == green, axis=-1)
-        other_mask = ~(blue_mask | green_mask)
-        one_hot[blue_mask] = np.array([1, 0, 0])
-        one_hot[green_mask] = np.array([0, 1, 0])
-        one_hot[other_mask] = np.array([0, 0, 1])
+        red_mask = np.all(image == red, axis=-1)
+        blue_mask = ~(red_mask | green_mask)
+        one_hot[red_mask] = np.array([0, 0, 1])     # stem
+        one_hot[green_mask] = np.array([0, 1, 0])   # leaf
+        one_hot[blue_mask] = np.array([1, 0, 0])    # background
         return one_hot
     else:
         image = tf.convert_to_tensor(image, dtype=tf.float32)
@@ -58,11 +56,11 @@ for i in tqdm(range(len(image_path))):
     labels.append(label)
 images = np.array(images)
 labels = np.array(labels) * 255
-probability_vector = model.predict(images)[0]
+probability_vector = model.predict(images)
 color_map = {
-    0: [255, 0, 0],    # Class 0: Red
-    1: [0, 255, 0],    # Class 1: Green
-    2: [0, 0, 255]     # Class 2: Blue
+    0: [255, 0, 0],    # Class 0: background
+    1: [0, 255, 0],    # Class 1: leaf
+    2: [0, 0, 255]     # Class 2: stem
 }
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
@@ -71,6 +69,7 @@ for n in range(predicted_labels.shape[0]):
         for j in range(Width):
             label = predicted_labels[n, i, j]
             colored_image[n, i, j] = color_map[label]
+
 
 
 # Save Together
@@ -102,3 +101,4 @@ for i, image in enumerate(colored_image):
     # 保存图像文件
     cv.imwrite(os.path.join(gt_path, image_name), labels[i])
     cv.imwrite(os.path.join(pred_path, image_name), image)
+
