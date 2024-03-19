@@ -53,7 +53,7 @@ def train():
 
 
 if __name__ == '__main__':
-    image_path, label_path = Dataloader()
+    image_path, label_path, _ = Dataloader()
     images = []
     labels = []
     print('Load Data and Preprocess...')

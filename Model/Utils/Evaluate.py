@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+import os
 
 gt_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict/gt'
 pred_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict/pred'
@@ -10,10 +11,15 @@ def compute():
     precision_list = []
     recall_list = []
     f1_list = []
-    for i in range(2256):
+    file_name = []
+
+    for root, dirs, files in os.walk(gt_path):
+        file_name = files
+
+    for item in file_name:
         # 读取gt和pred图像
-        gt_image = Image.open(gt_path + f"/{i}.png")  # 替换为gt图像的路径和命名规则
-        pred_image = Image.open(pred_path + f"/{i}.png")  # 替换为pred图像的路径和命名规则
+        gt_image = Image.open(gt_path + '/' + item)  # 替换为gt图像的路径和命名规则
+        pred_image = Image.open(pred_path + '/' + item)  # 替换为pred图像的路径和命名规则
 
         # 将图像转换为numpy数组
         gt_array = np.ravel(np.argmax(np.array(gt_image), axis=-1))
