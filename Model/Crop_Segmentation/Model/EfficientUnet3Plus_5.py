@@ -367,37 +367,42 @@ def efficient_net(width_coefficient,
     d1 = layers.Activation('relu')(d1)
     d1 = tf.keras.layers.Dropout(drop_connect_rate)(d1)
 
-    # sort layer
-    sort_layer = tf.keras.layers.Dropout(drop_connect_rate)(Concatenate_waiting[6])
-    sort_layer = tf.keras.layers.Conv2D(3, (1, 1), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(sort_layer)
-    sort_layer = adaptive_max_pool2d(sort_layer, [1, 1])
-    sort_layer = layers.Activation('softmax')(sort_layer)
+    # # sort layer
+    # sort_layer = tf.keras.layers.Dropout(drop_connect_rate)(Concatenate_waiting[6])
+    # sort_layer = tf.keras.layers.Conv2D(3, (1, 1), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(sort_layer)
+    # sort_layer = adaptive_max_pool2d(sort_layer, [1, 1])
+    # sort_layer = layers.Activation('softmax')(sort_layer)
+    #
+    # output1 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
+    # output1 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output1)
+    # output1 = tf.multiply(output1, sort_layer)
+    #
+    # output2 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(4, 4), padding='same')(d2)
+    # output2 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output2)
+    # output2 = tf.multiply(output2, sort_layer)
+    #
+    # output3 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(8, 8), padding='same')(d3)
+    # output3 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output3)
+    # output3 = tf.multiply(output3, sort_layer)
+    #
+    # output4 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(16, 16), padding='same')(d4)
+    # output4 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output4)
+    # output4 = tf.multiply(output4, sort_layer)
+    #
+    # output5 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(32, 32), padding='same')(Concatenate_waiting[6])
+    # output5 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output5)
+    # output5 = tf.multiply(output5, sort_layer)
+    #
+    # tmp = [output1, output2, output3, output4, output5]
+    # outputs = []
+    # for item in tmp:
+    #     outputs.append(layers.Activation('softmax')(item))
+    # model = Model(img_input, outputs, name=model_name)
 
-    output1 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
-    output1 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output1)
-    output1 = tf.multiply(output1, sort_layer)
-
-    output2 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(4, 4), padding='same')(d2)
-    output2 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output2)
-    output2 = tf.multiply(output2, sort_layer)
-
-    output3 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(8, 8), padding='same')(d3)
-    output3 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output3)
-    output3 = tf.multiply(output3, sort_layer)
-
-    output4 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(16, 16), padding='same')(d4)
-    output4 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output4)
-    output4 = tf.multiply(output4, sort_layer)
-
-    output5 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(32, 32), padding='same')(Concatenate_waiting[6])
-    output5 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output5)
-    output5 = tf.multiply(output5, sort_layer)
-
-    tmp = [output1, output2, output3, output4, output5]
-    outputs = []
-    for item in tmp:
-        outputs.append(layers.Activation('softmax')(item))
-    model = Model(img_input, outputs, name=model_name)
+    output = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
+    output = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output)
+    output = layers.Activation('softmax')(output)
+    model = Model(img_input, output, name=model_name)
 
     return model
 

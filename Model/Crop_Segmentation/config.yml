@@ -1,0 +1,18 @@
+Image:
+  Width: 320
+  Height: 224
+
+Path:
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented_mask"
+  Predict_Save: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict"
+
+Train:
+  Epoch: 200
+  Batch_Size: 8
+
+  # Default: 'EfficientUnet'
+  # ['EfficientUnet', 'EfficientUnet3Plus_5', 'EfficientUnet3Plus_7']
+  Model_Used: 'EfficientUnet3Plus_5'
+  Module:
+    CBAM: False

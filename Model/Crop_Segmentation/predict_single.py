@@ -2,17 +2,14 @@ import os
 import cv2 as cv
 import tensorflow as tf
 import numpy as np
-from tqdm import tqdm
 
-from DataLoader.TestPoolDataloader import Dataloader
-from model_5 import efficientnet_b0 as create_model
+from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
 import yaml
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    model_path = yaml_data['Path']['Model']
     output_dir = yaml_data['Path']['Predict_Save']
 
     # 创建保存图像的目录
@@ -36,26 +33,17 @@ def preprocessing(image, label=False):
         image = image / 255.
         return image
 
-
+model_path = "Model_save/EfficientUnet_Final.h5"
 model = create_model()
 model.load_weights(model_path)
 
+image_path = r'/Users/shijunshen/Documents/Code/dataset/Smart-Farm/Merge-1- 2- 4- 5- 5.1- 6-.v1i.voc/test/broccoli_3_day_7_11_png.rf.176918c840504d95cd466ffc551a85e5.jpg'
 
-image_path, label_path = Dataloader()
-images = []
-labels = []
-print('Load Data and Preprocess...')
-for i in tqdm(range(len(image_path))):
-    image = image_path[i]
-    label = label_path[i]
-    image = cv.imread(image)
-    image = preprocessing(image)
-    label = cv.imread(label)
-    label = preprocessing(label, True)
-    images.append(image)
-    labels.append(label)
-images = np.array(images)
-labels = np.array(labels) * 255
+
+image = cv.imread(image_path)
+image = preprocessing(image)
+
+images = np.array([image])
 probability_vector = model.predict(images)
 color_map = {
     0: [255, 0, 0],    # Class 0: background
@@ -70,35 +58,17 @@ for n in range(predicted_labels.shape[0]):
             label = predicted_labels[n, i, j]
             colored_image[n, i, j] = color_map[label]
 
+image = np.array(image)
 
 
-# Save Together
-# 遍历数组并保存每个元素为图像文件
-# for i, image in enumerate(colored_image):
-#     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
-#     image_name = f"{i}.png"
-#
-#     combined_image = np.concatenate((labels[i], image), axis=1)
-#     # 保存图像文件
-#     if not os.path.exists(output_dir):
-#         os.makedirs(output_dir)
-#     image_path = os.path.join(output_dir, image_name)
-#
-#     cv.imwrite(image_path, combined_image)
 
+# # 图像融合
+# blended_image = cv.addWeighted(image * 255.0, 0.5, colored_image[0], 0.5, 0.0, dtype=cv.CV_8UC3)
+# # 显示融合结果
+# cv.imshow('Blended Image', blended_image)
 
-# Save Independently
-for i, image in enumerate(colored_image):
-    gt_path = os.path.join(output_dir, 'gt')
-    pred_path = os.path.join(output_dir, 'pred')
-    if not os.path.exists(gt_path):
-        os.makedirs(gt_path)
-    if not os.path.exists(pred_path):
-        os.makedirs(pred_path)
-    # 构建图像文件名（例如，image_0.png, image_1.png, ...）
-    image_name = f"{i}.png"
+# 图像显示
+combined_image = np.concatenate((image, colored_image[0]), axis=1)
+cv.imshow('prediction', combined_image)
 
-    # 保存图像文件
-    cv.imwrite(os.path.join(gt_path, image_name), labels[i])
-    cv.imwrite(os.path.join(pred_path, image_name), image)
-
+cv.waitKey()

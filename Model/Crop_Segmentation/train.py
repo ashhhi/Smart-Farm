@@ -1,9 +1,6 @@
 import numpy as np
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
-from Model.EfficientUNet_Depth.evaluate import mean_relative_error
-from Model.EfficientUNet_Depth.loss import loss2
-from model import efficientnet_b0 as create_model
 import cv2 as cv
 import tensorflow as tf
 # tf.data.experimental.enable_debug_mode()
@@ -12,9 +9,8 @@ import yaml
 import platform
 from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
-from keras.metrics import OneHotMeanIoU
-system = platform.system()
 
+system = platform.system()
 if system == 'Windows':
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     gpus = tf.config.list_physical_devices('GPU')
@@ -23,6 +19,17 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
+    Model_Used = yaml_data['Train']['Model_Used']
+    epoch = yaml_data['Train']['Epoch']
+    batch_size = yaml_data['Train']['Batch_Size']
+
+if Model_Used == 'EfficientUnet3Plus_5':
+    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
+elif Model_Used == 'EfficientUnet3Plus_7':
+    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
+else:
+    from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
+
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
     if label:
@@ -44,12 +51,16 @@ def preprocessing(image, label=False):
 
 def train():
     model = create_model()
-    # model.load_weights("model_save/EfficientUnet_19.h5")
+    # model.load_weights("Model_save/EfficientUnet_19.h5")
     model.summary()
-    checkpoint_callback = ModelCheckpoint('model_save/EfficientUnet_{epoch:02d}.h5', save_weights_only=True, verbose=1)
+    checkpoint_callback = ModelCheckpoint('Model_save/EfficientUnet_{epoch:02d}.h5', save_weights_only=True, verbose=1)
     model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
-    model.fit(images, labels, epochs=200, verbose=1, batch_size=8, callbacks=[checkpoint_callback])
-    model.save('model_save/EfficientUnet_Final.h5')
+    retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
+    model.save('Model_save/EfficientUnet_Final.h5')
+    with open('History/history.txt', 'w') as f:
+        f.write(str(retval.history))
+        print("Write History into History/history.txt")
+
 
 
 if __name__ == '__main__':
@@ -69,4 +80,5 @@ if __name__ == '__main__':
     images = np.array(images)
     labels = np.array(labels)
     print('Finished and Start Training ...')
+    print('Model:', Model_Used)
     train()

@@ -1,9 +1,10 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
+from CBAM import CBAM
 import yaml
 
-with open('config.yml', 'r') as file:
+with open('../config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
