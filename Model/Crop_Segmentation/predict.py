@@ -5,19 +5,26 @@ import numpy as np
 from tqdm import tqdm
 
 from DataLoader.TestPoolDataloader import Dataloader
-from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
 import yaml
-
-model_path = "Model_save/EfficientUnet_Final.h5"
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
     output_dir = yaml_data['Path']['Predict_Save']
+    Model_Used = yaml_data['Train']['Model_Used']
+    pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
+    model_path = f"Model_save/{pre_trained_weights}"
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
+
+if Model_Used == 'EfficientUnet3Plus_5':
+    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
+elif Model_Used == 'EfficientUnet3Plus_7':
+    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
+else:
+    from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
@@ -38,8 +45,7 @@ def preprocessing(image, label=False):
         return image
 
 
-model = create_model()
-model.load_weights(model_path)
+model = tf.keras.models.load_model(model_path)
 
 
 image_path, label_path, image_name = Dataloader()

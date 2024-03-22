@@ -1,13 +1,14 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
-from CBAM import CBAM
+from Model.Crop_Segmentation.Model.Module.CBAM import CBAM
 import yaml
 
-with open('../config.yml', 'r') as file:
+with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
+    Use_CBAM = yaml_data['Train']['Module']['CBAM']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -157,6 +158,9 @@ def UnetDecoder(input, filters, stride, concat, dropout_rate):
                       kernel_initializer=CONV_KERNEL_INITIALIZER)(x)
     x = layers.Dropout(dropout_rate)(x)
     x = layers.BatchNormalization()(x)
+
+    if Use_CBAM:
+        x = CBAM(x, filters)
     # x = layers.Activation("swish")(x)
     return x
 

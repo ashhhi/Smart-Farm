@@ -88,9 +88,14 @@ def compute():
     average_precision = np.mean(precision_list)
     average_recall = np.mean(recall_list)
     average_f1 = np.mean(f1_list)
-    return average_iou, average_precision, average_recall, average_f1
+    print('IoU:', average_iou)
+    print('Precision:', average_precision)
+    print('Recall:', average_recall)
+    print('F1:', average_f1)
+
+    return
+    # return average_iou, average_precision, average_recall, average_f1
 
 
 
-
-print(compute())
+compute()

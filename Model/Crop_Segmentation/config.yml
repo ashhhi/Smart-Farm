@@ -8,11 +8,14 @@ Path:
   Predict_Save: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict"
 
 Train:
-  Epoch: 200
+  Epoch: 50
   Batch_Size: 8
 
   # Default: 'EfficientUnet'
   # ['EfficientUnet', 'EfficientUnet3Plus_5', 'EfficientUnet3Plus_7']
-  Model_Used: 'EfficientUnet3Plus_5'
+  Model_Used: 'EfficientUnet'
+
+  # if '', There is no pre trained weights, else the name is in /Model_save/
+  Pre_Trained_Weights: 'EfficientUnet_50.h5'
   Module:
     CBAM: False

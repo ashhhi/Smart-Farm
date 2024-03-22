@@ -11,6 +11,8 @@ with open('config.yml', 'r') as file:
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
     output_dir = yaml_data['Path']['Predict_Save']
+    pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
+    model_path = f"Model_save/{pre_trained_weights}"
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
@@ -33,9 +35,8 @@ def preprocessing(image, label=False):
         image = image / 255.
         return image
 
-model_path = "Model_save/EfficientUnet_Final.h5"
-model = create_model()
-model.load_weights(model_path)
+model = tf.keras.models.load_model(model_path)
+
 
 image_path = r'/Users/shijunshen/Documents/Code/dataset/Smart-Farm/Merge-1- 2- 4- 5- 5.1- 6-.v1i.voc/test/broccoli_3_day_7_11_png.rf.176918c840504d95cd466ffc551a85e5.jpg'
 

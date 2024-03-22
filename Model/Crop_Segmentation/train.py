@@ -22,6 +22,7 @@ with open('config.yml', 'r') as file:
     Model_Used = yaml_data['Train']['Model_Used']
     epoch = yaml_data['Train']['Epoch']
     batch_size = yaml_data['Train']['Batch_Size']
+    pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
 
 if Model_Used == 'EfficientUnet3Plus_5':
     from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
@@ -50,13 +51,16 @@ def preprocessing(image, label=False):
 
 
 def train():
-    model = create_model()
-    # model.load_weights("Model_save/EfficientUnet_19.h5")
+    if pre_trained_weights:
+        print('Load Pre Trained Weights:', pre_trained_weights)
+        model = tf.keras.models.load_model(f"Model_save/{pre_trained_weights}")
+    else:
+        print('Create new Model')
+        model = create_model()
     model.summary()
-    checkpoint_callback = ModelCheckpoint('Model_save/EfficientUnet_{epoch:02d}.h5', save_weights_only=True, verbose=1)
+    checkpoint_callback = ModelCheckpoint('Model_save/EfficientUnet_{epoch:02d}.h5', save_weights_only=False, verbose=1)
     model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
     retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
-    model.save('Model_save/EfficientUnet_Final.h5')
     with open('History/history.txt', 'w') as f:
         f.write(str(retval.history))
         print("Write History into History/history.txt")

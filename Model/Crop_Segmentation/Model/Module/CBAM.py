@@ -6,14 +6,14 @@ def Channal(input, out_dim, ratio=16):
     excitation1 = Dense(units=out_dim / ratio)(squeeze1)
     excitation1 = Activation('relu')(excitation1)
     excitation1 = Dense(units=out_dim)(excitation1)
-    excitation1 = Activation('sigmoid')(excitation1)
+    excitation1 = Activation('softmax')(excitation1)
     excitation1 = tf.reshape(excitation1, [-1, 1, 1, out_dim])
 
     squeeze2 = GlobalMaxPool2D()(input)
     excitation2 = Dense(units=out_dim / ratio)(squeeze2)
     excitation2 = Activation('relu')(excitation2)
     excitation2 = Dense(units=out_dim)(excitation2)
-    excitation2 = Activation('sigmoid')(excitation2)
+    excitation2 = Activation('softmax')(excitation2)
     excitation2 = tf.reshape(excitation2, [-1, 1, 1, out_dim])
 
     excitation = excitation1 + excitation2
@@ -28,7 +28,7 @@ def Spatial(input):
     x2 = tf.reshape(x2, (tf.shape(x2)[0], tf.shape(x2)[1], tf.shape(x2)[2], 1))
     x = tf.concat((x1, x2), axis=3)
     x = Conv2D(kernel_size=7, filters=1, strides=1, padding='same')(x)
-    x = Activation('sigmoid')(x)
+    x = Activation('softmax')(x)
     y = x * input
     return y
 
