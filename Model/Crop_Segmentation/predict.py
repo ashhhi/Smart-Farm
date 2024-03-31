@@ -11,21 +11,12 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    output_dir = yaml_data['Path']['Predict_Save']
-    Model_Used = yaml_data['Train']['Model_Used']
-    pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
+    output_dir = yaml_data['Predict']['save_path']
+    pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
     model_path = f"Model_save/{pre_trained_weights}"
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
-
-if Model_Used == 'EfficientUnet3Plus_5':
-    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
-elif Model_Used == 'EfficientUnet3Plus_7':
-    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
-else:
-    from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
-
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
     if label:
@@ -44,6 +35,9 @@ def preprocessing(image, label=False):
         image = image / 255.
         return image
 
+
+# model = create_model()
+# model.load_weights(model_path)
 
 model = tf.keras.models.load_model(model_path)
 

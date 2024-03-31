@@ -2,8 +2,8 @@ import numpy as np
 from PIL import Image
 import os
 
-gt_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict/gt'
-pred_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict/pred'
+gt_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict_Unet3/gt'
+pred_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict_Unet3/pred'
 num_classes = 3
 
 def compute():
