@@ -24,12 +24,22 @@ with open('config.yml', 'r') as file:
     batch_size = yaml_data['Train']['Batch_Size']
     pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
 
-if Model_Used == 'EfficientUnet3Plus_5':
-    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
-elif Model_Used == 'EfficientUnet3Plus_7':
-    from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
-else:
+
+if Model_Used == 'Unet':
+    from Model.Crop_Segmentation.Model.Unet import Unet as create_model
+elif Model_Used == 'EfficientUnet3':
     from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
+elif Model_Used == 'EfficientUnet3Plus':
+    if yaml_data['Models_Detail']['EfficientUnet3Plus']['layers'] == 5:
+        from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
+    else:
+        from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
+elif Model_Used == 'DeeplabV3':
+    from Model.Crop_Segmentation.Model.DeeplabV3 import DeeplabV3 as create_model
+elif Model_Used == 'DeeplabV3Plus':
+    from Model.Crop_Segmentation.Model.DeeplabV3Plus import DeeplabV3Plus as create_model
+else:
+    assert 0, 'No model choosed!'
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
@@ -58,7 +68,7 @@ def train():
         print('Create new Model')
         model = create_model()
     model.summary()
-    checkpoint_callback = ModelCheckpoint('Model_save/EfficientUnet_{epoch:02d}.h5', save_weights_only=False, verbose=1)
+    checkpoint_callback = ModelCheckpoint('Model_save/NewNet_{epoch:02d}.h5', save_weights_only=False, verbose=1)
     model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
     retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
     with open('History/history.txt', 'w') as f:

@@ -10,7 +10,7 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    output_dir = yaml_data['Path']['Predict_Save']
+    output_dir = yaml_data['Predict']['save_path']
     pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
     model_path = f"Model_save/{pre_trained_weights}"
 
@@ -38,9 +38,7 @@ def preprocessing(image, label=False):
 model = tf.keras.models.load_model(model_path)
 
 
-image_path = r'/Users/shijunshen/Documents/Code/dataset/Smart-Farm/Merge-1- 2- 4- 5- 5.1- 6-.v1i.voc/test/broccoli_3_day_7_11_png.rf.176918c840504d95cd466ffc551a85e5.jpg'
-
-
+image_path = r'/Users/shijunshen/Documents/test/IMG_5161.JPG'
 image = cv.imread(image_path)
 image = preprocessing(image)
 
@@ -63,13 +61,13 @@ image = np.array(image)
 
 
 
-# # 图像融合
-# blended_image = cv.addWeighted(image * 255.0, 0.5, colored_image[0], 0.5, 0.0, dtype=cv.CV_8UC3)
-# # 显示融合结果
+# 图像融合
+blended_image = cv.addWeighted(image * 255.0, 0.5, colored_image[0], 0.5, 0.0, dtype=cv.CV_8UC3)
+# 显示融合结果
 # cv.imshow('Blended Image', blended_image)
 
 # 图像显示
-combined_image = np.concatenate((image, colored_image[0]), axis=1)
+combined_image = np.concatenate((image, colored_image[0], blended_image / 255.0), axis=1)
 cv.imshow('prediction', combined_image)
 
 cv.waitKey()

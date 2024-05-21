@@ -1,7 +1,7 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
-from Model.Crop_Segmentation.Model.Module.CBAM import CBAM
+from Model.Crop_Segmentation.Model.Module.Attention import attach_attention_module
 import yaml
 import tensorflow as tf
 
@@ -10,7 +10,7 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Use_CBAM = yaml_data['Train']['Module']['CBAM']
+    Attention = yaml_data['Train']['Module']['Attention']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -254,6 +254,11 @@ def efficient_net(width_coefficient,
 
     # Unet3+ Architecture
     base_channel = Concatenate_waiting[0].shape[-1]
+    if Attention:
+        tmp = []
+        for layer in Concatenate_waiting:
+            tmp.append(attach_attention_module(layer, Attention))
+        Concatenate_waiting = tmp
 
     e1_1 = Concatenate_waiting[0]
     e1_2 = tf.keras.layers.MaxPooling2D((2, 2))(Concatenate_waiting[0])
@@ -327,8 +332,8 @@ def efficient_net(width_coefficient,
     d6 = tf.keras.layers.BatchNormalization()(d6)
     d6 = layers.Activation('relu')(d6)
     d6 = tf.keras.layers.Dropout(drop_connect_rate)(d6)
-    if Use_CBAM:
-        d6 = CBAM(d6, base_channel * 7)
+    if Attention:
+        d6 = attach_attention_module(d6, Attention)
 
     d6_5 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(2, 2), padding='same')(d6)
     d6_5 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
@@ -350,8 +355,8 @@ def efficient_net(width_coefficient,
     d5 = tf.keras.layers.BatchNormalization()(d5)
     d5 = layers.Activation('relu')(d5)
     d5 = tf.keras.layers.Dropout(drop_connect_rate)(d5)
-    if Use_CBAM:
-        d5 = CBAM(d5, base_channel * 7)
+    if Attention:
+        d5 = attach_attention_module(d5, Attention)
 
     d5_4 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(d5)
@@ -371,8 +376,8 @@ def efficient_net(width_coefficient,
     d4 = tf.keras.layers.BatchNormalization()(d4)
     d4 = layers.Activation('relu')(d4)
     d4 = tf.keras.layers.Dropout(drop_connect_rate)(d4)
-    if Use_CBAM:
-        d4 = CBAM(d4, base_channel * 7)
+    if Attention:
+        d4 = attach_attention_module(d4, Attention)
 
     d4_3 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(2, 2), padding='same')(d4)
     d4_3 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
@@ -390,8 +395,8 @@ def efficient_net(width_coefficient,
     d3 = tf.keras.layers.BatchNormalization()(d3)
     d3 = layers.Activation('relu')(d3)
     d3 = tf.keras.layers.Dropout(drop_connect_rate)(d3)
-    if Use_CBAM:
-        d3 = CBAM(d3, base_channel * 7)
+    if Attention:
+        d3 = attach_attention_module(d3, Attention)
 
     d3_2 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(2, 2), padding='same')(d3)
     d3_2 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
@@ -406,8 +411,8 @@ def efficient_net(width_coefficient,
     d2 = tf.keras.layers.BatchNormalization()(d2)
     d2 = layers.Activation('relu')(d2)
     d2 = tf.keras.layers.Dropout(drop_connect_rate)(d2)
-    if Use_CBAM:
-        d2 = CBAM(d2, base_channel * 7)
+    if Attention:
+        d2 = attach_attention_module(d2, Attention)
 
     d2_1 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(2, 2), padding='same')(d2)
     d2_1 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
@@ -418,8 +423,8 @@ def efficient_net(width_coefficient,
     d1 = tf.keras.layers.BatchNormalization()(d1)
     d1 = layers.Activation('relu')(d1)
     d1 = tf.keras.layers.Dropout(drop_connect_rate)(d1)
-    if Use_CBAM:
-        d1 = CBAM(d1, base_channel * 7)
+    if Attention:
+        d1 = attach_attention_module(d1, Attention)
 
 
     # # sort layer

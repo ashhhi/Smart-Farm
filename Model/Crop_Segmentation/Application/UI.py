@@ -13,11 +13,12 @@ with open('../config.yml', 'r') as file:
     Height = yaml_data['Image']['Height']
 
 # 加载模型（假设您已经有了一个可以进行图像预测的模型）
-model = tf.keras.models.load_model('EfficientUnet_50.h5')
+model = tf.keras.models.load_model('EfficientUnet3Plus7_200_epoch.h5')
 
 
 class ImagePredictionApp(QWidget):
     def __init__(self):
+
         super().__init__()
         self.setWindowTitle('Image Prediction App')
         self.image_label = QLabel()

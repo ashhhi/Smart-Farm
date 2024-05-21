@@ -33,18 +33,18 @@ EfficientUnet3_7_accuracy += EfficientUnet3_7_1_50['accuracy'] + EfficientUnet3_
 fig, axs = plt.subplots(1, 2)
 
 # 第一个子图：Loss
-axs[0].plot(range(len(EfficientUnet_loss)), EfficientUnet_loss, label='EfficientUnet loss')
-axs[0].plot(range(len(EfficientUnet3_5_loss)), EfficientUnet3_5_loss, label='EfficientUnet3+(5 layers) loss')
-axs[0].plot(range(len(EfficientUnet3_7_loss)), EfficientUnet3_7_loss, label='EfficientUnet3+(7 layers) loss')
+axs[0].plot(range(len(EfficientUnet_loss)), EfficientUnet_loss, label='Effi-Att-Unet loss')
+axs[0].plot(range(len(EfficientUnet3_5_loss)), EfficientUnet3_5_loss, label='Effi-Att-Unet3+(5 layers) loss')
+axs[0].plot(range(len(EfficientUnet3_7_loss)), EfficientUnet3_7_loss, label='Effi-Att-Unet3+(7 layers) loss')
 axs[0].set_title('Loss Decline Curve')
 axs[0].set_xlabel('Epoch')
 axs[0].set_ylabel('Loss')
 axs[0].legend()
 
 # 第二个子图：Accuracy
-axs[1].plot(range(len(EfficientUnet_accuracy)), EfficientUnet_accuracy, label='EfficientUnet accuracy')
-axs[1].plot(range(len(EfficientUnet3_5_accuracy)), EfficientUnet3_5_accuracy, label='EfficientUnet3+(5 layers) accuracy')
-axs[1].plot(range(len(EfficientUnet3_7_accuracy)), EfficientUnet3_7_accuracy, label='EfficientUnet3+(7 layers) accuracy')
+axs[1].plot(range(len(EfficientUnet_accuracy)), EfficientUnet_accuracy, label='Effi-Att-Unet accuracy')
+axs[1].plot(range(len(EfficientUnet3_5_accuracy)), EfficientUnet3_5_accuracy, label='Effi-Att-Unet3+(5 layers) accuracy')
+axs[1].plot(range(len(EfficientUnet3_7_accuracy)), EfficientUnet3_7_accuracy, label='Effi-Att-Unet3+(7 layers) accuracy')
 axs[1].set_title('Accuracy Rising Curve')
 axs[1].set_xlabel('Epoch')
 axs[1].set_ylabel('Accuracy')

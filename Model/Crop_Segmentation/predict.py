@@ -7,6 +7,8 @@ from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
 import yaml
 
+with_label = True
+
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
@@ -51,10 +53,12 @@ for i in tqdm(range(len(image_path))):
     label = label_path[i]
     image = cv.imread(image)
     image = preprocessing(image)
-    label = cv.imread(label)
-    label = preprocessing(label, True)
     images.append(image)
-    labels.append(label)
+    if with_label:
+        label = cv.imread(label)
+        label = preprocessing(label, True)
+        labels.append(label)
+
 images = np.array(images)
 labels = np.array(labels) * 255
 probability_vector = model.predict(images)
@@ -65,7 +69,7 @@ color_map = {
 }
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
-for n in range(predicted_labels.shape[0]):
+for n in tqdm(range(predicted_labels.shape[0])):
     for i in range(Height):
         for j in range(Width):
             label = predicted_labels[n, i, j]
@@ -80,7 +84,10 @@ for i, image in enumerate(colored_image):
     # image_name = f"{i}.png"
     name = image_name[i]
 
-    combined_image = np.concatenate((images[i] * 255, labels[i], image), axis=1)
+    if with_label:
+        combined_image = np.concatenate((images[i] * 255, labels[i], image), axis=1)
+    else:
+        combined_image = np.concatenate((images[i] * 255, image), axis=1)
     # 保存图像文件
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -90,18 +97,18 @@ for i, image in enumerate(colored_image):
 
 
 # Save Independently
-for i, image in enumerate(colored_image):
-    gt_path = os.path.join(output_dir, 'gt')
-    pred_path = os.path.join(output_dir, 'pred')
-    if not os.path.exists(gt_path):
-        os.makedirs(gt_path)
-    if not os.path.exists(pred_path):
-        os.makedirs(pred_path)
-    # 构建图像文件名（例如，image_0.png, image_1.png, ...）
-    # name = f"{i}.png"
-    name = image_name[i]
-
-    # 保存图像文件
-    cv.imwrite(os.path.join(gt_path, name), labels[i])
-    cv.imwrite(os.path.join(pred_path, name), image)
+# for i, image in enumerate(colored_image):
+#     gt_path = os.path.join(output_dir, 'gt')
+#     pred_path = os.path.join(output_dir, 'pred')
+#     if not os.path.exists(gt_path):
+#         os.makedirs(gt_path)
+#     if not os.path.exists(pred_path):
+#         os.makedirs(pred_path)
+#     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
+#     # name = f"{i}.png"
+#     name = image_name[i]
+#
+#     # 保存图像文件
+#     cv.imwrite(os.path.join(gt_path, name), labels[i])
+#     cv.imwrite(os.path.join(pred_path, name), image)
 

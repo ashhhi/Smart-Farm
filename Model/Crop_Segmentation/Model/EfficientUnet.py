@@ -1,14 +1,14 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
-from Model.Crop_Segmentation.Model.Module.CBAM import CBAM
+from Model.Crop_Segmentation.Model.Module.Attention import attach_attention_module
 import yaml
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Use_CBAM = yaml_data['Train']['Module']['CBAM']
+    Attention = yaml_data['Train']['Module']['Attention']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -159,8 +159,8 @@ def UnetDecoder(input, filters, stride, concat, dropout_rate):
     x = layers.Dropout(dropout_rate)(x)
     x = layers.BatchNormalization()(x)
 
-    if Use_CBAM:
-        x = CBAM(x, filters)
+    if Attention:
+        x = attach_attention_module(x, Attention)
     # x = layers.Activation("swish")(x)
     return x
 
