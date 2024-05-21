@@ -9,7 +9,6 @@ import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, GlobalMaxPool2D, Dense, Activation, GlobalAvgPool2D, UpSampling2D
 from tensorflow.keras import layers, Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, concatenate, Conv2DTranspose, BatchNormalization, Activation
-from Model.Crop_Segmentation.Model.Module.Attention import attach_attention_module
 import yaml
 
 
@@ -78,10 +77,10 @@ def DeeplabV3Plus(input_shape=(Height, Width, 3)):
     ''' Backbone '''
 
     if yaml_data['Models_Detail']['DeeplabV3Plus']['Backbone'] == 'Xception':
-        from Model.Crop_Segmentation.Model.Backbone import Xception_Variant
+        from Model.Backbone import Xception_Variant
         x, low_level_feature = Xception_Variant.Xception(img_input)
     elif yaml_data['Models_Detail']['DeeplabV3Plus']['Backbone'] == 'ResNet50':
-        from Model.Crop_Segmentation.Model.Backbone import ResNet50
+        from Model.Backbone import ResNet50
         x, low_level_feature = ResNet50.ResNet50(img_input)
 
     high_level_feature = ASPP(inputs=x, in_channel=2048)

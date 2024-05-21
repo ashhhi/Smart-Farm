@@ -10,6 +10,9 @@ import platform
 from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
 
+os.chdir("./")
+print(os.getcwd())
+
 system = platform.system()
 if system == 'Windows':
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -26,18 +29,18 @@ with open('config.yml', 'r') as file:
 
 
 if Model_Used == 'Unet':
-    from Model.Crop_Segmentation.Model.Unet import Unet as create_model
+    from Model.Unet import Unet as create_model
 elif Model_Used == 'EfficientUnet3':
-    from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
+    from Model.EfficientUnet import efficientnet_b0 as create_model
 elif Model_Used == 'EfficientUnet3Plus':
     if yaml_data['Models_Detail']['EfficientUnet3Plus']['layers'] == 5:
-        from Model.Crop_Segmentation.Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
+        from Model.EfficientUnet3Plus_5 import efficientnet_b0 as create_model
     else:
-        from Model.Crop_Segmentation.Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
+        from Model.EfficientUnet3Plus_7 import efficientnet_b0 as create_model
 elif Model_Used == 'DeeplabV3':
-    from Model.Crop_Segmentation.Model.DeeplabV3 import DeeplabV3 as create_model
+    from Model.DeeplabV3 import DeeplabV3 as create_model
 elif Model_Used == 'DeeplabV3Plus':
-    from Model.Crop_Segmentation.Model.DeeplabV3Plus import DeeplabV3Plus as create_model
+    from Model.DeeplabV3Plus import DeeplabV3Plus as create_model
 else:
     assert 0, 'No model choosed!'
 

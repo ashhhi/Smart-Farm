@@ -7,6 +7,9 @@ from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
 import yaml
 
+os.chdir("./")
+print(os.getcwd())
+
 with_label = True
 
 with open('config.yml', 'r') as file:

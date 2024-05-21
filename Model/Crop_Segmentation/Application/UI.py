@@ -7,7 +7,7 @@ import tensorflow as tf
 import numpy as np
 import yaml
 
-with open('../config.yml', 'r') as file:
+with open('Crop_Segmentation/config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']

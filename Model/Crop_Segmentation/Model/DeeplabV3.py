@@ -9,7 +9,6 @@ import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, GlobalMaxPool2D, Dense, Activation, GlobalAvgPool2D, UpSampling2D
 from tensorflow.keras import layers, Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, concatenate, Conv2DTranspose, BatchNormalization, Activation
-from Model.Crop_Segmentation.Model.Module.Attention import attach_attention_module
 import yaml
 from Model.Crop_Segmentation.Model.Backbone import ResNet50
 

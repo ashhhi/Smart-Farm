@@ -1,7 +1,7 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
-from Model.Crop_Segmentation.Model.Module.Attention import attach_attention_module
+from Model.Module.Attention import attach_attention_module
 import yaml
 
 with open('config.yml', 'r') as file:

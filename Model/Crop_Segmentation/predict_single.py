@@ -3,8 +3,10 @@ import cv2 as cv
 import tensorflow as tf
 import numpy as np
 
-from Model.Crop_Segmentation.Model.EfficientUnet import efficientnet_b0 as create_model
 import yaml
+os.chdir("./")
+print(os.getcwd())
+
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
