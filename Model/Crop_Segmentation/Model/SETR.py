@@ -32,7 +32,6 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Attention = yaml_data['Train']['Module']['Attention']
 
 def PatchEmbed(inputs, patch_size=16, embed_dim=768):
     """
@@ -49,23 +48,55 @@ def PatchEmbed(inputs, patch_size=16, embed_dim=768):
     x = tf.reshape(x, [-1, num_patches, embed_dim])
     return x, num_patches
 
+class ConcatClassTokenAddPosEmbed(layers.Layer):
+    def __init__(self, embed_dim=768, num_patches=196, **kwargs):
+        super(ConcatClassTokenAddPosEmbed, self).__init__(**kwargs)
+        self.embed_dim = embed_dim
+        self.num_patches = num_patches
+        self.cls_token = self.add_weight(name="cls",
+                                        shape=(1, 1, embed_dim),
+                                        initializer="zeros",
+                                        trainable=True)
+        self.pos_embed = self.add_weight(name="pos_embed",
+                                         shape=(1, num_patches + 1, embed_dim),
+                                         initializer=tf.random_normal_initializer(stddev=0.02),
+                                         trainable=True)
 
-def ConcatClassTokenAddPosEmbed(inputs, embed_dim=768, num_patches=196):
-    batch_size = tf.shape(inputs)[0]
-    cls_token = tf.Variable(initial_value=tf.zeros([1, 1, embed_dim]),
-                            trainable=True,
-                            dtype=tf.float32)
-    # [1, 1, 768] -> [B, 1, 768]
-    cls_token = tf.broadcast_to(cls_token, shape=[batch_size, 1, embed_dim])
-    x = tf.concat([cls_token, inputs], axis=1)  # [B, 197, 768]
+    def call(self, inputs):
+        batch_size = tf.shape(inputs)[0]
+        cls_token = tf.broadcast_to(self.cls_token, shape=[batch_size, 1, self.embed_dim])
+        x = tf.concat([cls_token, inputs], axis=1)
+        x = x + self.pos_embed
+        return x
 
-    pos_embed = tf.Variable(initial_value=tf.random.normal([1, num_patches + 1, embed_dim], stddev=0.02),
-                            trainable=True,
-                            dtype=tf.float32)
+    def get_config(self):
+        config = super(ConcatClassTokenAddPosEmbed, self).get_config()
+        config.update({
+            'embed_dim': self.embed_dim,
+            'num_patches': self.num_patches
+        })
+        return config
 
-    x = tf.add(x, pos_embed)
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
 
-    return x
+# def ConcatClassTokenAddPosEmbed(inputs, embed_dim=768, num_patches=196):
+#     batch_size = tf.shape(inputs)[0]
+#     cls_token = tf.Variable(initial_value=tf.zeros([1, 1, embed_dim]),
+#                             trainable=True,
+#                             dtype=tf.float32)
+#     # [1, 1, 768] -> [B, 1, 768]
+#     cls_token = tf.broadcast_to(cls_token, shape=[batch_size, 1, embed_dim])
+#     x = tf.concat([cls_token, inputs], axis=1)  # [B, 197, 768]
+#
+#     pos_embed = tf.Variable(initial_value=tf.random.normal([1, num_patches + 1, embed_dim], stddev=0.02),
+#                             trainable=True,
+#                             dtype=tf.float32)
+#
+#     x = tf.add(x, pos_embed)
+#
+#     return x
 
 
 def Attention(inputs, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop_ratio=0., proj_drop_ratio=0.):
@@ -144,7 +175,7 @@ def VisionTransformer(inputs, patch_size=16, embed_dim=768,
                       drop_ratio=0., attn_drop_ratio=0., drop_path_ratio=0.,
                       representation_size=None, num_classes=1000, ):
     x, num_patches = PatchEmbed(inputs, patch_size=patch_size, embed_dim=embed_dim)
-    x = ConcatClassTokenAddPosEmbed(x, embed_dim=embed_dim, num_patches=num_patches)
+    x = ConcatClassTokenAddPosEmbed(embed_dim=embed_dim, num_patches=num_patches)(x)
     x = layers.Dropout(drop_ratio)(x)
     dpr = np.linspace(0., drop_path_ratio, depth)
     for i in range(depth):

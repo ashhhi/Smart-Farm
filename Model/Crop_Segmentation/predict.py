@@ -1,4 +1,6 @@
 import os
+import random
+
 import cv2 as cv
 import tensorflow as tf
 import numpy as np
@@ -6,17 +8,24 @@ from tqdm import tqdm
 
 from DataLoader.TestPoolDataloader import Dataloader
 import yaml
+from Model.SETR import ConcatClassTokenAddPosEmbed
 
 os.chdir("./")
 print(os.getcwd())
 
 with_label = True
 
+
+custom_objects = {
+    'ConcatClassTokenAddPosEmbed': ConcatClassTokenAddPosEmbed
+}
+
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
     output_dir = yaml_data['Predict']['save_path']
+    is_all = yaml_data['Predict']['all']
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
     model_path = f"Model_save/{pre_trained_weights}"
     print(model_path)
@@ -45,7 +54,7 @@ def preprocessing(image, label=False):
 # model = create_model()
 # model.load_weights(model_path)
 
-model = tf.keras.models.load_model(model_path, compile=False)
+model = tf.keras.models.load_model(model_path, custom_objects=custom_objects, compile=False)
 model.compile()
 
 
@@ -53,7 +62,12 @@ image_path, label_path, image_name = Dataloader()
 images = []
 labels = []
 print('Load Data and Preprocess...')
-for i in tqdm(range(len(image_path))):
+if is_all:
+    num = len(image_path)
+else:
+    num = 10
+
+for i in tqdm(range(num)):
     image = image_path[i]
     label = label_path[i]
     image = cv.imread(image)
@@ -74,6 +88,7 @@ color_map = {
 }
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
+
 for n in tqdm(range(predicted_labels.shape[0])):
     for i in range(Height):
         for j in range(Width):
