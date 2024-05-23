@@ -17,7 +17,6 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Attention = yaml_data['Train']['Module']['Attention']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -39,14 +38,15 @@ DENSE_KERNEL_INITIALIZER = {
     }
 }
 
-def CBA(inputs, filters, kernel_size=3, strides=1, padding='SAME'):
+def CBA(inputs, filters, kernel_size=3, strides=1, padding='SAME', activation='relu'):
     x = Conv2D(filters=filters, kernel_size=kernel_size, strides=strides, padding=padding)(inputs)
     x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+    x = Activation(activation)(x)
     return x
 
 
-def ASPP(inputs, in_channel):
+def ASPP(inputs):
+    in_channel = inputs.shape[3]
     out_channel = in_channel // 8
     filter1 = tf.constant(value=1, shape=[1, 1, in_channel, out_channel], dtype=tf.float32)
     filter2 = tf.constant(value=1, shape=[3, 3, in_channel, out_channel], dtype=tf.float32)
@@ -83,7 +83,7 @@ def DeeplabV3Plus(input_shape=(Height, Width, 3)):
         from Model.Backbone import ResNet50
         x, low_level_feature = ResNet50.ResNet50(img_input)
 
-    high_level_feature = ASPP(inputs=x, in_channel=2048)
+    high_level_feature = ASPP(inputs=x)
 
     ''' Decoder '''
     low_level_feature = CBA(low_level_feature, filters=48, kernel_size=1)
@@ -96,7 +96,7 @@ def DeeplabV3Plus(input_shape=(Height, Width, 3)):
 
     rate = input_shape[0] // concat.shape[1]
     y = UpSampling2D(size=(rate, rate), interpolation="bilinear")(concat)
-    y = CBA(y, filters=3, kernel_size=3)
+    y = CBA(y, filters=3, kernel_size=3, activation='softmax')
     """"""
 
     model = Model(img_input, y)

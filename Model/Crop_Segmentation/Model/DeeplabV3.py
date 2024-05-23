@@ -65,7 +65,8 @@ def Bottleneck2(inputs, filters, padding='same', expansion=4):
 
 
 
-def ASPP(inputs, in_channel):
+def ASPP(inputs):
+    in_channel = inputs.shape[3]
     out_channel = in_channel // 8
     filter1 = tf.constant(value=1, shape=[1, 1, in_channel, out_channel], dtype=tf.float32)
     filter2 = tf.constant(value=1, shape=[3, 3, in_channel, out_channel], dtype=tf.float32)
@@ -95,7 +96,7 @@ def DeeplabV3(input_shape=(Height, Width, 3)):
 
     """ ResNet-50 Backbone """
     x, _ = ResNet50.ResNet50(img_input)
-    x = ASPP(inputs=x, in_channel=2048)
+    x = ASPP(inputs=x)
 
     """ Deeplab head """
     x = Conv2D(filters=256, kernel_size=3, padding='SAME')(x)
@@ -103,9 +104,14 @@ def DeeplabV3(input_shape=(Height, Width, 3)):
     x = Activation('relu')(x)
 
     x = Conv2D(filters=3, kernel_size=1, padding='SAME')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    """"""
 
     x = UpSampling2D(size=(8, 8), interpolation="bilinear")(x)
-    """"""
+    x = Conv2D(filters=3, kernel_size=1, padding='SAME')(x)
+    x = BatchNormalization()(x)
+    x = Activation('softmax')(x)
 
     model = Model(img_input, x)
 

@@ -2,6 +2,7 @@ import math
 from typing import Union
 from tensorflow.keras import layers, Model
 from Model.Module.Attention import attach_attention_module
+from Model.Module.ASPP import ASPP
 import yaml
 import tensorflow as tf
 
@@ -10,7 +11,8 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Attention = yaml_data['Train']['Module']['Attention']
+    Attention = yaml_data['Models_Detail']['EfficientUnet3Plus']['Attention']
+    ASPP_act = yaml_data['Models_Detail']['EfficientUnet3Plus']['ASPP']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -305,6 +307,9 @@ def efficient_net(width_coefficient,
 
     e6_6 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                       kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[5])
+
+    if ASPP_act:
+        Concatenate_waiting[6] = ASPP(Concatenate_waiting[6])
 
     d7_1 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(16, 16), padding='same')(
         Concatenate_waiting[6])

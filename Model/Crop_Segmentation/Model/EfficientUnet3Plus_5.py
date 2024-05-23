@@ -10,7 +10,7 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Image']['Width']
     Height = yaml_data['Image']['Height']
-    Attention = yaml_data['Train']['Module']['Attention']
+    Attention = yaml_data['Models_Detail']['EfficientUnet3Plus']['Attention']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {

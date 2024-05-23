@@ -11,18 +11,17 @@ Train:
   Epoch: 50
   Batch_Size: 8
 
-  Model_Used: 'DeeplabV3Plus' # ['Unet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus', 'EfficientUnet3Plus']
+  # ['Unet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus', 'EfficientUnet3Plus','SETR']
+  Model_Used: 'DeeplabV3Plus'
 
   # if '', There is no pre trained weights, else the name is in /Model_save/
   Pre_Trained_Weights: ''
-  Module:
-    Attention: ''   # CBAM or SE or nothing
 
 
 
 Predict:
   save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict"
-  Pre_Trained_Weights: 'Unet_200_epoch.h5'
+  Pre_Trained_Weights: 'NewNet_03.h5'
 
 
 
@@ -31,3 +30,5 @@ Models_Detail:
     Backbone: 'Xception' # ['Xception', 'ResNet50']
   EfficientUnet3Plus:
     layers: 7 # 5 or 7
+    ASPP: True
+    Attention: '' # CBAM or SE or nothing

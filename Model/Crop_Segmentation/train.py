@@ -41,8 +41,10 @@ elif Model_Used == 'DeeplabV3':
     from Model.DeeplabV3 import DeeplabV3 as create_model
 elif Model_Used == 'DeeplabV3Plus':
     from Model.DeeplabV3Plus import DeeplabV3Plus as create_model
+elif Model_Used == 'SETR':
+    from Model.SETR import vit_base_patch16_224_in21k as create_model
 else:
-    assert 0, 'No model choosed!'
+    assert 0, 'No model chosed!'
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
