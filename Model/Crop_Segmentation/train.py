@@ -73,7 +73,7 @@ def train():
         print('Create new Model')
         model = create_model()
     model.summary()
-    checkpoint_callback = ModelCheckpoint('Model_save/NewNet_{epoch:02d}.h5', save_weights_only=False, verbose=1)
+    checkpoint_callback = ModelCheckpoint('Model_save/NewNet.h5', save_weights_only=False, verbose=1)
     model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
     retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
     with open('History/history.txt', 'w') as f:

@@ -187,10 +187,10 @@ def VisionTransformer(inputs, patch_size=16, embed_dim=768,
         x = layers.Dense(representation_size, activation="tanh")(x)
     else:
         x = layers.Activation("linear")(x)
-    x = layers.Dense(num_classes, kernel_initializer=initializers.Zeros())(x)
-
+    # x = layers.Dense(num_classes, kernel_initializer=initializers.Zeros())(x)
 
     return x
+
 
 def Decoder(input, filters, stride, dropout_rate):
     x = layers.Conv2DTranspose(filters, (3, 3), strides=(stride, stride), padding='same')(input)
@@ -204,7 +204,7 @@ def Decoder(input, filters, stride, dropout_rate):
     x = layers.Activation('relu')(x)
     return x
 
-def SETR(inputs, patch_size, embed_dim, depth, num_heads,representation_size, num_classes: int = 768, has_logits: bool = True):
+def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, num_classes: int = 768, has_logits: bool = True):
     # encoder
     x = VisionTransformer(inputs=inputs,
                           patch_size=patch_size,
@@ -216,7 +216,7 @@ def SETR(inputs, patch_size, embed_dim, depth, num_heads,representation_size, nu
 
     # remove cls token
     x = x[:, 1:, :]
-    x = tf.reshape(x, [-1, inputs.shape[1] // 16, inputs.shape[2] // 16, 3])
+    x = tf.reshape(x, [-1, inputs.shape[1] // patch_size, inputs.shape[2] // patch_size, representation_size])
     # decoder
     x = Decoder(x, 768, 2, 0.3)
     x = Decoder(x, 768, 2, 0.3)
