@@ -1,7 +1,7 @@
 import math
 from typing import Union
 from tensorflow.keras import layers, Model
-from Module.Attention import attach_attention_module
+from Model.Module.Attention import attach_attention_module
 import yaml
 import tensorflow as tf
 
@@ -266,7 +266,7 @@ def efficient_net(width_coefficient,
         Concatenate_waiting.append(x)
 
     # Unet3+ Architecture
-    base_channel = Concatenate_waiting[0].shape[-1]*2
+    base_channel = Concatenate_waiting[0].shape[-1]
 
     if Attention:
         tmp = []

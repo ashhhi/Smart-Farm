@@ -5,6 +5,7 @@ import numpy as np
 import os
 import shutil
 from PIL import Image
+from tqdm import tqdm
 
 # Adjustable parameters
 saturation_factor = 1.8  # Saturation adjustment factor
@@ -13,12 +14,20 @@ rotation_degree = 15  # Rotation degree
 noise = 0.02  # 2%
 
 # For augmentation
+# # set the input folder path
+# img_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/image'
+# mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/mask'
+#
+# # set the output folder path
+# augmented_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented'
+# augmented_mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented_mask'
+
 # set the input folder path
-img_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/image'
-mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/mask'
+img_folder = '/Users/shijunshen/Documents/Code/dataset/UnifiedDataset/Pretrain/image'
+mask_folder = '/Users/shijunshen/Documents/Code/dataset/UnifiedDataset/Pretrain/mask'
 
 # set the output folder path
-augmented_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented'
+augmented_folder = '/Users/shijunshen/Documents/Code/dataset/UnifiedDataset/Pretrain/augmented_image'
 augmented_mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented_mask'
 
 # Annotate Progress
@@ -31,7 +40,8 @@ if not os.path.exists(augmented_folder):
 
 
 def original_copy(source, destination):
-    for filename in os.listdir(source):
+    print('copy original image')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             src = os.path.join(source, filename)
             dest = os.path.join(destination, "ol_" + filename)
@@ -45,7 +55,8 @@ def modify_saturation(img):
 
 
 def augment_images_sat(source, dest):
-    for filename in os.listdir(source):
+    print('change image satuation')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             img = Image.open(os.path.join(source, filename))
             modifications = modify_saturation(img)
@@ -62,7 +73,8 @@ def modify_brightness(img):
 
 
 def augment_images_bs(source, dest):
-    for filename in os.listdir(source):
+    print('change image brightness')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             img = Image.open(os.path.join(source, filename))
             modifications = modify_brightness(img)
@@ -80,7 +92,8 @@ def flip_image(img):
 
 
 def augment_images_flip(source, dest):
-    for filename in os.listdir(source):
+    print('flip image')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             img = Image.open(os.path.join(source, filename))
             flipped_images = flip_image(img)
@@ -110,7 +123,8 @@ def add_noise(image, noise_percentage):
 
 
 def augment_images_noise(source, dest):
-    for filename in os.listdir(source):
+    print('add noise')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             img = Image.open(os.path.join(source, filename))
             noise_images = add_noise(img, noise)
@@ -126,7 +140,8 @@ def rotate_image(img, angle):
 
 
 def augment_images_rotate(source, dest):
-    for filename in os.listdir(source):
+    print('rotate image')
+    for filename in tqdm(os.listdir(source)):
         if filename.endswith('.jpg') or filename.endswith('.png'):
             filename_no_ext = os.path.splitext(filename)[0]
             img = Image.open(os.path.join(source, filename))
@@ -153,12 +168,14 @@ def augment_images_rotate(source, dest):
 
 def main():
     print("Augmentation Processing...")
+    print('process image...')
     original_copy(img_folder, augmented_folder)
     augment_images_sat(img_folder, augmented_folder)
     augment_images_bs(img_folder, augmented_folder)
     augment_images_flip(img_folder, augmented_folder)
     augment_images_noise(img_folder, augmented_folder)
 
+    print('process mask...')
     original_copy(mask_folder, augmented_mask_folder)
     augment_images_sat(mask_folder, augmented_mask_folder)
     augment_images_bs(mask_folder, augmented_mask_folder)

@@ -193,15 +193,15 @@ def VisionTransformer(inputs, patch_size=16, embed_dim=768,
 
 
 def Decoder(input, filters, stride, dropout_rate):
-    x = layers.Conv2DTranspose(filters, (3, 3), strides=(stride, stride), padding='same')(input)
     x = layers.Conv2D(filters,
                       kernel_size=3,
                       padding="same",
                       use_bias=False,
-                      kernel_initializer=CONV_KERNEL_INITIALIZER)(x)
+                      kernel_initializer=CONV_KERNEL_INITIALIZER)(input)
     x = layers.Dropout(dropout_rate)(x)
     x = layers.BatchNormalization()(x)
     x = layers.Activation('relu')(x)
+    x = layers.Conv2DTranspose(filters, (3, 3), strides=(stride, stride), padding='same')(x)
     return x
 
 def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, num_classes: int = 768, has_logits: bool = True):
@@ -223,7 +223,7 @@ def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, n
     x = Decoder(x, 256, 2, 0.3)
     x = Decoder(x, 3, 2, 0.3)
 
-    x = layers.Conv2D(filters=3, kernel_size=1, padding='SAME')(x)
+    # x = layers.Conv2D(filters=3, kernel_size=1, padding='SAME')(x)
     x = layers.BatchNormalization()(x)
     x = layers.Activation('softmax')(x)
 

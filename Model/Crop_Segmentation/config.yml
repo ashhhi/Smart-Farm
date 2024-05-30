@@ -1,8 +1,7 @@
 Image:
   Width: 320
   Height: 224
-
-
+  Class_Number: 3
 
 Train:
   image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented"
@@ -12,7 +11,7 @@ Train:
   Batch_Size: 8
 
   # ['Unet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus', 'EfficientUnet3Plus','SETR']
-  Model_Used: 'SETR'
+  Model_Used: 'EfficientUnet3Plus'
 
   # if '', There is no pre trained weights, else the name is in /Model_save/
   Pre_Trained_Weights: ''
@@ -21,8 +20,8 @@ Train:
 
 Predict:
   save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict"
-  all: False # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'Eff7_ASPP_50_epoch.h5'
+  all: True # if True, predict all pics in save_path, else predict 10 pics.
+  Pre_Trained_Weights: 'EfficientUnet3Plus7_200_epoch.h5'
 
 
 
@@ -30,6 +29,6 @@ Models_Detail:
   DeeplabV3Plus:
     Backbone: 'Xception' # ['Xception', 'ResNet50']
   EfficientUnet3Plus:
-    layers: 7 # 5 or 7
+    layers: 5 # 5 or 7
     ASPP: True
     Attention: '' # CBAM or SE or nothing

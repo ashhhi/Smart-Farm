@@ -13,7 +13,7 @@ from Model.SETR import ConcatClassTokenAddPosEmbed
 os.chdir("./")
 print(os.getcwd())
 
-with_label = True
+with_label = False
 
 
 custom_objects = {
@@ -27,7 +27,7 @@ with open('config.yml', 'r') as file:
     output_dir = yaml_data['Predict']['save_path']
     is_all = yaml_data['Predict']['all']
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
-    model_path = f"Model_save/{pre_trained_weights}"
+    model_path = f"Model_save/Final/{pre_trained_weights}"
     print(model_path)
 
     # 创建保存图像的目录
