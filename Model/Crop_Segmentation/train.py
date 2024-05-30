@@ -20,12 +20,13 @@ if system == 'Windows':
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
     Model_Used = yaml_data['Train']['Model_Used']
     epoch = yaml_data['Train']['Epoch']
     batch_size = yaml_data['Train']['Batch_Size']
     pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
+    class_map = yaml_data['Train']['Class_Map']
 
 
 if Model_Used == 'Unet':
@@ -48,16 +49,15 @@ else:
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
+    one_hot = np.zeros_like(image)
     if label:
-        red = np.array([0, 0, 255])
-        green = np.array([0, 255, 0])
-        one_hot = np.zeros_like(image)
-        green_mask = np.all(image == green, axis=-1)
-        red_mask = np.all(image == red, axis=-1)
-        blue_mask = ~(red_mask | green_mask)
-        one_hot[red_mask] = np.array([0, 0, 1])         # stem
-        one_hot[green_mask] = np.array([0, 1, 0])       # leaf
-        one_hot[blue_mask] = np.array([1, 0, 0])        # background
+        cnt = 0
+        for item in class_map:
+            temp = np.array(list(reversed(class_map[item])))
+            mask = np.all(image == temp, axis=-1)
+            oh = len(class_map) * [0]
+            oh[cnt] = 1
+            one_hot[mask] = np.array(oh)
         return one_hot
     else:
         image = tf.convert_to_tensor(image, dtype=tf.float32)

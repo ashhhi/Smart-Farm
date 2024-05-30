@@ -15,9 +15,10 @@ from Model.Crop_Segmentation.Model.Backbone import ResNet50
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
     Attention = yaml_data['Train']['Module']['Attention']
+    Class_Num = len(yaml_data['Train']['Class_Map'])
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -109,7 +110,7 @@ def DeeplabV3(input_shape=(Height, Width, 3)):
     """"""
 
     x = UpSampling2D(size=(8, 8), interpolation="bilinear")(x)
-    x = Conv2D(filters=3, kernel_size=1, padding='SAME')(x)
+    x = Conv2D(filters=Class_Num, kernel_size=1, padding='SAME')(x)
     x = BatchNormalization()(x)
     x = Activation('softmax')(x)
 

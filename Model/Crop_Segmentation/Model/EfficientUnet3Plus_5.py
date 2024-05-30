@@ -8,9 +8,10 @@ import tensorflow as tf
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
     Attention = yaml_data['Models_Detail']['EfficientUnet3Plus']['Attention']
+    Class_Num = len(yaml_data['Train']['Class_Map'])
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -415,8 +416,8 @@ def efficient_net(width_coefficient,
     #     outputs.append(layers.Activation('softmax')(item))
     # model = Model(img_input, outputs, name=model_name)
 
-    output = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
-    output = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output)
+    output = tf.keras.layers.Conv2DTranspose(Class_Num, (3, 3), strides=(2, 2), padding='same')(d1)
+    output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output)
     output = layers.Activation('softmax')(output)
     model = Model(img_input, output, name=model_name)
 

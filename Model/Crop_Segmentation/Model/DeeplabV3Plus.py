@@ -15,8 +15,9 @@ import yaml
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
+    Class_Num = len(yaml_data['Train']['Class_Map'])
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -96,7 +97,7 @@ def DeeplabV3Plus(input_shape=(Height, Width, 3)):
 
     rate = input_shape[0] // concat.shape[1]
     y = UpSampling2D(size=(rate, rate), interpolation="bilinear")(concat)
-    y = CBA(y, filters=3, kernel_size=3, activation='softmax')
+    y = CBA(y, filters=Class_Num, kernel_size=3, activation='softmax')
     """"""
 
     model = Model(img_input, y)

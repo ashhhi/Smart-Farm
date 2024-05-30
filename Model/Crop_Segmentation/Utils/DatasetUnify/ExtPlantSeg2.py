@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import yaml
 from PIL import Image
 
 plant_segmentation_path = ['/Users/shijunshen/Documents/Code/dataset/ExtPlantSeg2/Plant_Phenotyping_Datasets/Tray/Ara2012', '/Users/shijunshen/Documents/Code/dataset/ExtPlantSeg2/Plant_Phenotyping_Datasets/Tray/Ara2013-Canon']
@@ -11,7 +12,9 @@ saved_segmentation_image = '/Users/shijunshen/Documents/Code/dataset/ExtPlantSeg
 saved_segmentation_mask = '/Users/shijunshen/Documents/Code/dataset/ExtPlantSeg2/Plant_Phenotyping_Datasets/Segmentation/mask'
 saved_segmentation_new_mask = '/Users/shijunshen/Documents/Code/dataset/ExtPlantSeg2/Plant_Phenotyping_Datasets/Segmentation/new_mask'
 
-
+with open('config.yml', 'r') as file:
+    yaml_data = yaml.safe_load(file)
+    class_map = yaml_data['Train']['Class_Map']
 # 遍历源文件夹中的所有文件
 for p in plant_segmentation_path:
     for filename in os.listdir(p):
@@ -91,12 +94,10 @@ for filename in os.listdir(saved_segmentation_mask):
                 # 获取当前像素的灰度值
                 gray_value = grayscale_image.getpixel((x, y))
 
-                # 如果当前像素是黑色(灰度值为 0),将其设为蓝色
-                if gray_value == 0:
-                    modified_image.putpixel((x, y), (0, 0, 255))
-                # 如果当前像素不是黑色,将其设为绿色
-                else:
-                    modified_image.putpixel((x, y), (0, 255, 0))
+                Leaf_color = class_map['Leaf']
+                if gray_value != 0:
+                    modified_image.putpixel((x, y), tuple(Leaf_color))
+
 
         # 保存修改后的图像
         modified_image.save(target_file_path)

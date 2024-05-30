@@ -6,9 +6,10 @@ import yaml
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
     Attention = yaml_data['Models_Detail']['EfficientUnet3Plus']['Attention']
+    Class_Num = len(yaml_data['Train']['Class_Map'])
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {
@@ -287,7 +288,7 @@ def efficient_net(width_coefficient,
     x = layers.Dropout(dropout_rate)(x)
     x = layers.BatchNormalization()(x)
     x = layers.Activation(activation)(x)
-    x = layers.Conv2D(3,
+    x = layers.Conv2D(Class_Num,
                       kernel_size=3,
                       padding="same",
                       use_bias=False,

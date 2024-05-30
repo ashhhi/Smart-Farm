@@ -9,6 +9,9 @@ import xml.etree.ElementTree as ET
 
 image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/image'
 label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/mask'
+with open('config.yml', 'r') as file:
+    yaml_data = yaml.safe_load(file)
+    class_map = yaml_data['Train']['Class_Map']
 
 def polygon_to_mask(label_path, save_name):
     # Parse the XML label
@@ -59,8 +62,8 @@ def polygon_to_mask(label_path, save_name):
     draw = ImageDraw.Draw(mask)
 
     # Set colors for stem and leaf
-    stem_color = (255, 0, 0)  # Red color
-    leaf_color = (0, 255, 0)  # Green color
+    stem_color = tuple(class_map['Stem'])  # Red color
+    leaf_color = tuple(class_map['Leaf'])  # Green color
 
     # Draw leaf polygons in green
     for item in leaf_polygons:

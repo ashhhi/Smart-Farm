@@ -9,6 +9,7 @@ from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
 import yaml
 from Model.SETR import ConcatClassTokenAddPosEmbed
+from train import preprocessing
 
 os.chdir("./")
 print(os.getcwd())
@@ -22,33 +23,16 @@ custom_objects = {
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
     output_dir = yaml_data['Predict']['save_path']
     is_all = yaml_data['Predict']['all']
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
     model_path = f"Model_save/Final/{pre_trained_weights}"
-    print(model_path)
+    class_map = yaml_data['Train']['Class_Map']
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
-def preprocessing(image, label=False):
-    image = cv.resize(image, (Width, Height))
-    if label:
-        red = np.array([0, 0, 255])
-        green = np.array([0, 255, 0])
-        one_hot = np.zeros_like(image)
-        green_mask = np.all(image == green, axis=-1)
-        red_mask = np.all(image == red, axis=-1)
-        blue_mask = ~(red_mask | green_mask)
-        one_hot[red_mask] = np.array([0, 0, 1])     # stem
-        one_hot[green_mask] = np.array([0, 1, 0])   # leaf
-        one_hot[blue_mask] = np.array([1, 0, 0])    # background
-        return one_hot
-    else:
-        image = tf.convert_to_tensor(image, dtype=tf.float32)
-        image = image / 255.
-        return image
 
 
 # model = create_model()
@@ -81,11 +65,11 @@ for i in tqdm(range(num)):
 images = np.array(images)
 labels = np.array(labels) * 255
 probability_vector = model.predict(images)
-color_map = {
-    0: [255, 0, 0],    # Class 0: background
-    1: [0, 255, 0],    # Class 1: leaf
-    2: [0, 0, 255]     # Class 2: stem
-}
+color_map = {}
+cnt = 0
+for item in class_map:
+    color_map[str(cnt)] = list(reversed(class_map[item]))   # RGB --> BGR
+    cnt += 1
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
 
@@ -93,7 +77,7 @@ for n in tqdm(range(predicted_labels.shape[0])):
     for i in range(Height):
         for j in range(Width):
             label = predicted_labels[n, i, j]
-            colored_image[n, i, j] = color_map[label]
+            colored_image[n, i, j] = color_map[str(label)]
 
 
 #

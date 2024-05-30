@@ -30,8 +30,9 @@ DENSE_KERNEL_INITIALIZER = {
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
+    Class_Num = len(yaml_data['Train']['Class_Map'])
 
 def PatchEmbed(inputs, patch_size=16, embed_dim=768):
     """
@@ -173,7 +174,7 @@ def Block(inputs, dim, num_heads=8, qkv_bias=False, qk_scale=None, drop_ratio=0.
 def VisionTransformer(inputs, patch_size=16, embed_dim=768,
                       depth=12, num_heads=12, qkv_bias=True, qk_scale=None,
                       drop_ratio=0., attn_drop_ratio=0., drop_path_ratio=0.,
-                      representation_size=None, num_classes=1000, ):
+                      representation_size=None ):
     x, num_patches = PatchEmbed(inputs, patch_size=patch_size, embed_dim=embed_dim)
     x = ConcatClassTokenAddPosEmbed(embed_dim=embed_dim, num_patches=num_patches)(x)
     x = layers.Dropout(drop_ratio)(x)
@@ -187,7 +188,7 @@ def VisionTransformer(inputs, patch_size=16, embed_dim=768,
         x = layers.Dense(representation_size, activation="tanh")(x)
     else:
         x = layers.Activation("linear")(x)
-    # x = layers.Dense(num_classes, kernel_initializer=initializers.Zeros())(x)
+    # x = layers.Dense(Class_Num, kernel_initializer=initializers.Zeros())(x)
 
     return x
 
@@ -204,7 +205,7 @@ def Decoder(input, filters, stride, dropout_rate):
     x = layers.Conv2DTranspose(filters, (3, 3), strides=(stride, stride), padding='same')(x)
     return x
 
-def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, num_classes: int = 768, has_logits: bool = True):
+def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, has_logits: bool = True):
     # encoder
     x = VisionTransformer(inputs=inputs,
                           patch_size=patch_size,
@@ -212,7 +213,7 @@ def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, n
                           depth=depth,
                           num_heads=num_heads,
                           representation_size=representation_size if has_logits else None,
-                          num_classes=num_classes)
+                          )
 
     # remove cls token
     x = x[:, 1:, :]
@@ -230,30 +231,30 @@ def SETR(inputs, patch_size, embed_dim, depth, num_heads, representation_size, n
     model = Model(inputs, x)
 
     return model
-def vit_base_patch16_224_in21k(input_shape=(Height, Width, 3), num_classes: int = 3, has_logits: bool = True):
+def vit_base_patch16_224_in21k(input_shape=(Height, Width, 3),  has_logits: bool = True):
     """
     ViT-Base model (ViT-B/16) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
     """
     img_input = layers.Input(shape=input_shape)
-    model = SETR(img_input,patch_size=16, embed_dim=768, depth=12, num_heads=12, representation_size=768, num_classes=num_classes, has_logits=has_logits)
+    model = SETR(img_input,patch_size=16, embed_dim=768, depth=12, num_heads=12, representation_size=768,  has_logits=has_logits)
 
     return model
 
 
-def vit_base_patch32_224_in21k(input_shape=(Height, Width, 3), num_classes: int = 3, has_logits: bool = True):
+def vit_base_patch32_224_in21k(input_shape=(Height, Width, 3),  has_logits: bool = True):
     """
     ViT-Base model (ViT-B/32) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
     """
     img_input = layers.Input(shape=input_shape)
     model = SETR(img_input, patch_size=32, embed_dim=768, depth=12, num_heads=12, representation_size=768,
-                 num_classes=num_classes, has_logits=has_logits)
+                 has_logits=has_logits)
 
     return model
 
 
-def vit_large_patch16_224_in21k(input_shape=(Height, Width, 3), num_classes: int = 3, has_logits: bool = True):
+def vit_large_patch16_224_in21k(input_shape=(Height, Width, 3), has_logits: bool = True):
     """
     ViT-Large model (ViT-L/16) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
@@ -261,28 +262,28 @@ def vit_large_patch16_224_in21k(input_shape=(Height, Width, 3), num_classes: int
 
     img_input = layers.Input(shape=input_shape)
     model = SETR(img_input, patch_size=16, embed_dim=1024, depth=24, num_heads=16, representation_size=1024,
-                 num_classes=num_classes, has_logits=has_logits)
+              has_logits=has_logits)
 
     return model
 
 
-def vit_large_patch32_224_in21k(input_shape=(Height, Width, 3), num_classes: int = 3, has_logits: bool = True):
+def vit_large_patch32_224_in21k(input_shape=(Height, Width, 3),  has_logits: bool = True):
     """
     ViT-Large model (ViT-L/32) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
     """
     img_input = layers.Input(shape=input_shape)
     model = SETR(img_input, patch_size=32, embed_dim=1024, depth=24, num_heads=16, representation_size=1024,
-                 num_classes=num_classes, has_logits=has_logits)
+                has_logits=has_logits)
     return model
 
 
-def vit_huge_patch14_224_in21k(input_shape=(Height, Width, 3), num_classes: int = 3, has_logits: bool = True):
+def vit_huge_patch14_224_in21k(input_shape=(Height, Width, 3), has_logits: bool = True):
     """
     ViT-Huge model (ViT-H/14) from original paper (https://arxiv.org/abs/2010.11929).
     ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
     """
     img_input = layers.Input(shape=input_shape)
     model = SETR(img_input, patch_size=14, embed_dim=1280, depth=32, num_heads=16, representation_size=1280,
-                 num_classes=num_classes, has_logits=has_logits)
+                has_logits=has_logits)
     return model
