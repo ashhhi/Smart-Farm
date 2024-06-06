@@ -5,7 +5,6 @@ from Model.Module.Attention import attach_attention_module
 import yaml
 import tensorflow as tf
 
-
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Train']['Image']['Width']
@@ -23,6 +22,7 @@ CONV_KERNEL_INITIALIZER = {
     }
 }
 
+
 def adaptive_max_pool2d(x, output_size):
     input_shape = x.shape
     input_height = input_shape[1]
@@ -35,6 +35,7 @@ def adaptive_max_pool2d(x, output_size):
     stride_width = input_width // target_width
     pooled = tf.keras.layers.MaxPooling2D((stride_height, stride_width))(x)
     return pooled
+
 
 # 全连接层初始化方法
 DENSE_KERNEL_INITIALIZER = {
@@ -164,8 +165,6 @@ def block(inputs,
     return x
 
 
-
-
 def efficient_net(width_coefficient,
                   depth_coefficient,
                   input_shape=(Height, Width, 3),
@@ -276,10 +275,10 @@ def efficient_net(width_coefficient,
         Concatenate_waiting = tmp
 
     e1_1 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[0])
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[0])
     e1_2 = tf.keras.layers.MaxPooling2D((2, 2))(Concatenate_waiting[0])
     e1_2 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_2)
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_2)
     e1_3 = tf.keras.layers.MaxPooling2D((4, 4))(Concatenate_waiting[0])
     e1_3 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_3)
@@ -288,24 +287,25 @@ def efficient_net(width_coefficient,
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e1_4)
 
     e2_2 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[1])
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[1])
     e2_3 = tf.keras.layers.MaxPooling2D((2, 2))(Concatenate_waiting[1])
     e2_3 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e2_3)
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e2_3)
     e2_4 = tf.keras.layers.MaxPooling2D((4, 4))(Concatenate_waiting[1])
     e2_4 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e2_4)
 
     e3_3 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[2])
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[2])
     e3_4 = tf.keras.layers.MaxPooling2D((2, 2))(Concatenate_waiting[2])
     e3_4 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(e3_4)
 
     e4_4 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
-                                      kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[4])
+                                  kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(Concatenate_waiting[4])
 
-    d5_1 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(16, 16), padding='same')(Concatenate_waiting[6])
+    d5_1 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(16, 16), padding='same')(
+        Concatenate_waiting[6])
     d5_1 = tf.keras.layers.Conv2D(filters=base_channel, kernel_size=(3, 3),
                                   kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(d5_1)
     d5_2 = tf.keras.layers.Conv2DTranspose(base_channel, (3, 3), strides=(8, 8), padding='same')(
@@ -417,7 +417,8 @@ def efficient_net(width_coefficient,
     # model = Model(img_input, outputs, name=model_name)
 
     output = tf.keras.layers.Conv2DTranspose(Class_Num, (3, 3), strides=(2, 2), padding='same')(d1)
-    output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output)
+    output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(
+        output)
     output = layers.Activation('softmax')(output)
     model = Model(img_input, output, name=model_name)
 
@@ -484,4 +485,24 @@ def efficientnet_b7():
     # https://storage.googleapis.com/keras-applications/efficientnetb7.h5
     return efficient_net(width_coefficient=2.0,
                          depth_coefficient=3.1,
-                         dropout_rate=0.5, )
+                         dropout_rate=0.5,
+                         model_name="efficientnetb7")
+
+
+def efficientnet(version=0):
+    if version == 0:
+        return efficientnet_b0
+    elif version == 1:
+        return efficientnet_b1
+    elif version == 2:
+        return efficientnet_b2
+    elif version == 3:
+        return efficientnet_b3
+    elif version == 4:
+        return efficientnet_b4
+    elif version == 5:
+        return efficientnet_b5
+    elif version == 6:
+        return efficientnet_b6
+    elif version == 7:
+        return efficientnet_b7
