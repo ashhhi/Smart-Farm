@@ -39,7 +39,9 @@ Models_Detail:
   DeeplabV3Plus:
     Backbone: 'Xception' # ['Xception', 'ResNet50']
   EfficientUnet3Plus:
-    version: 7 # B0 - B7
+    version: 0
     layers: 5 # 5 or 7
     ASPP: True
     Attention: '' # CBAM or SE or nothing
+  EfficientUnet:
+    version: 0 # B0 - B7

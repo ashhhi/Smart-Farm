@@ -31,8 +31,9 @@ with open('config.yml', 'r') as file:
 
 if Model_Used == 'Unet':
     from Model.Unet import Unet as create_model
-elif Model_Used == 'EfficientUnet3':
-    from Model.EfficientUnet import efficientnet_b0 as create_model
+elif Model_Used == 'EfficientUnet':
+    from Model.EfficientUnet import efficientnet
+    create_model = efficientnet(version=yaml_data['Models_Detail']['EfficientUnet3Plus']['version'])
 elif Model_Used == 'EfficientUnet3Plus':
     if yaml_data['Models_Detail']['EfficientUnet3Plus']['layers'] == 5:
         from Model.EfficientUnet3Plus_5 import efficientnet

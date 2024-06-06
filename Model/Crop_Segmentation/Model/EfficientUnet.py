@@ -361,4 +361,24 @@ def efficientnet_b7():
     # https://storage.googleapis.com/keras-applications/efficientnetb7.h5
     return efficient_net(width_coefficient=2.0,
                          depth_coefficient=3.1,
-                         dropout_rate=0.5, )
+                         dropout_rate=0.5, 
+                         model_name="efficientnetb7")
+
+
+def efficientnet(version=0):
+    if version == 0:
+        return efficientnet_b0
+    elif version == 1:
+        return efficientnet_b1
+    elif version == 2:
+        return efficientnet_b2
+    elif version == 3:
+        return efficientnet_b3
+    elif version == 4:
+        return efficientnet_b4
+    elif version == 5:
+        return efficientnet_b5
+    elif version == 6:
+        return efficientnet_b6
+    elif version == 7:
+        return efficientnet_b7
