@@ -5,6 +5,24 @@ from Model.Module.Attention import attach_attention_module
 from Model.Module.ASPP import ASPP
 import yaml
 import tensorflow as tf
+from Model.Module.BiFPN import BiFPN
+from Model.Module.Convolution import SeparableConvBlock
+from Model.Module.Anchor import generate_anchors
+
+# 类目的数量 后面要加到config里面去
+num_classes = 80
+phi = 0
+
+#   BiFPN所用的通道数
+num_filters = [64, 88, 112, 160, 224, 288, 384, 384]
+#   BiFPN的重复次数
+Dbifpn = [3, 4, 5, 6, 7, 7, 8, 8]
+#   基础的先验框大小
+anchor_scale = [4., 4., 4., 4., 4., 4., 4., 5.]
+num_anchors = 9
+#   detect head部分堆叠次数
+box_class_repeats = [3, 3, 3, 4, 4, 4, 5, 5]
+
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
@@ -152,6 +170,38 @@ def block(inputs,
     return x
 
 
+def class_net(inputs):
+    feats = []
+    for feat in inputs:
+        x = feat
+        for _ in range(box_class_repeats[phi]):
+            x = SeparableConvBlock(x, num_filters[phi], activation='swish')
+        x = SeparableConvBlock(x, num_anchors * num_classes, activation='swish')
+        # x = tf.transpose(x, perm=[0, 2, 3, 1])
+        tmp = x.shape[1]*x.shape[2]*x.shape[3] // num_classes
+        x = tf.reshape(x, [-1, tmp, num_classes])
+        feats.append(x)
+    feats = tf.concat(feats, axis=1)
+    feats = tf.sigmoid(feats)
+    return feats
+
+def box_net(inputs):
+    feats = []
+    for feat in inputs:
+        x = feat
+        for _ in range(box_class_repeats[phi]):
+            x = SeparableConvBlock(x, num_filters[phi], activation='swish')
+        x = SeparableConvBlock(x, num_anchors * num_classes, activation='swish')
+        # x = tf.transpose(x, perm=[0, 2, 3, 1])
+        tmp = x.shape[1] * x.shape[2] * x.shape[3] // 4
+        x = tf.reshape(x, [-1, tmp, 4])
+        feats.append(x)
+    feats = tf.concat(feats, axis=1)
+    feats = tf.sigmoid(feats)
+    return feats
+
+
+
 def efficient_net(width_coefficient,
                   depth_coefficient,
                   input_shape=(Height, Width, 3),
@@ -215,6 +265,12 @@ def efficient_net(width_coefficient,
     # x = layers.experimental.preprocessing.Rescaling(1. / 255.)(img_input)
     # x = layers.experimental.preprocessing.Normalization()(x)
 
+    '''
+    -----------------
+    EfficientNet encoder
+    -----------------
+    '''
+
     # first conv2d (224,224,3) -> (112,112,32)
     x = layers.ZeroPadding2D(padding=correct_pad(input_shape[:2], 3),
                              name="stem_conv_pad")(img_input)
@@ -252,7 +308,12 @@ def efficient_net(width_coefficient,
             b += 1
         Concatenate_waiting.append(x)
 
-    # Unet3+ Architecture
+    '''
+    ---------------
+    Unet3+ decoder
+    ---------------
+    '''
+
     base_channel = Concatenate_waiting[0].shape[-1]
     if Attention:
         tmp = []
@@ -429,53 +490,41 @@ def efficient_net(width_coefficient,
     if Attention:
         d1 = attach_attention_module(d1, Attention)
 
-    # # sort layer
-    # sort_layer = tf.keras.layers.Dropout(drop_connect_rate)(Concatenate_waiting[6])
-    # sort_layer = tf.keras.layers.Conv2D(3, (1, 1), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(sort_layer)
-    # sort_layer = layers.GlobalMaxPooling2D()(sort_layer)
-    # sort_layer = layers.Activation('softmax')(sort_layer)
-    #
-    # sort_layer = tf.expand_dims(tf.expand_dims(sort_layer, axis=1), axis=1)
-    #
-    # output1 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(2, 2), padding='same')(d1)
-    # output1 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output1)
-    # output1 = tf.multiply(output1, sort_layer)
-    #
-    # output2 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(4, 4), padding='same')(d2)
-    # output2 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output2)
-    # output2 = tf.multiply(output2, sort_layer)
-    #
-    # output3 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(8, 8), padding='same')(d3)
-    # output3 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output3)
-    # output3 = tf.multiply(output3, sort_layer)
-    #
-    # output4 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(16, 16), padding='same')(d4)
-    # output4 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output4)
-    # output4 = tf.multiply(output4, sort_layer)
-    #
-    # output5 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(16, 16), padding='same')(d5)
-    # output5 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output5)
-    # output5 = tf.multiply(output5, sort_layer)
-    #
-    # output6 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(32, 32), padding='same')(d6)
-    # output6 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output6)
-    # output6 = tf.multiply(output6, sort_layer)
-    #
-    # output7 = tf.keras.layers.Conv2DTranspose(3, (3, 3), strides=(32, 32), padding='same')(Concatenate_waiting[6])
-    # output7 = tf.keras.layers.Conv2D(3, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(output7)
-    # output7 = tf.multiply(output7, sort_layer)
-    #
-    # tmp = [output1, output2, output3, output4, output5, output6, output7]
-    # outputs = []
-    # for item in tmp:
-    #     outputs.append(layers.Activation('softmax')(item))
-    # model = Model(img_input, outputs, name=model_name)
+    seg_output = tf.keras.layers.Conv2DTranspose(Class_Num, (3, 3), strides=(2, 2), padding='same')(d1)
+    seg_output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(
+        seg_output)
+    seg_output = layers.Activation('softmax')(output)
 
-    output = tf.keras.layers.Conv2DTranspose(Class_Num, (3, 3), strides=(2, 2), padding='same')(d1)
-    output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(
-        output)
-    output = layers.Activation('softmax')(output)
-    model = Model(img_input, output, name=model_name)
+    '''
+    ---------------------------------------
+    Detection network based on EfficientDet
+    ---------------------------------------
+    BiFPN module
+    ------------
+    '''
+    features = BiFPN([Concatenate_waiting[2], Concatenate_waiting[4], Concatenate_waiting[6]], phi=phi)
+    '''
+    --------------------
+    Class prediction net
+    --------------------
+    '''
+    classification = class_net(features)
+    '''
+    --------------------
+    Box prediction net
+    --------------------
+    '''
+    regression = box_net(features)
+    '''
+    --------------------
+    Generate anchor
+    --------------------
+    '''
+    anchors = generate_anchors(input_shape)
+
+
+
+    model = Model(img_input, [seg_output, regression, classification, anchors], name=model_name)
 
     return model
 
@@ -561,3 +610,4 @@ def efficientnet(version=0):
         return efficientnet_b6
     elif version == 7:
         return efficientnet_b7
+

@@ -29,26 +29,12 @@ with open('config.yml', 'r') as file:
     class_map = yaml_data['Train']['Class_Map']
 
 
-if Model_Used == 'Unet':
-    from Model.Unet import Unet as create_model
-elif Model_Used == 'EfficientUnet':
-    from Model.EfficientUnet import efficientnet
-    create_model = efficientnet(version=yaml_data['Models_Detail']['EfficientUnet3Plus']['version'])
-elif Model_Used == 'EfficientUnet3Plus':
-    if yaml_data['Models_Detail']['EfficientUnet3Plus']['layers'] == 5:
-        from Model.EfficientUnet3Plus_5 import efficientnet
-    else:
-        from Model.EfficientUnet3Plus_7 import efficientnet
-    create_model = efficientnet(version=yaml_data['Models_Detail']['EfficientUnet3Plus']['version'])
-elif Model_Used == 'DeeplabV3':
-    from Model.DeeplabV3 import DeeplabV3 as create_model
-elif Model_Used == 'DeeplabV3Plus':
-    from Model.DeeplabV3Plus import DeeplabV3Plus as create_model
-elif Model_Used == 'SETR':
-    from Model.SETR import vit_base_patch16_224_in21k as create_model
-else:
-    from Model.Effi_Att_Unet3Plus_Det import efficientnet
-    create_model = efficientnet()
+#################################Test dataset################################
+
+#################################Test dataset################################
+
+from Model.Effi_Att_Unet3Plus_Det import efficientnet
+create_model = efficientnet()
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
