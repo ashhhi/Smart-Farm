@@ -1,35 +1,39 @@
 Train:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented_mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/6_18"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
 
   Image:
-    Width: 512
-    Height: 512
+    Width: 320
+    Height: 224
 
 
   # class ---> RGB value
   # class = 2 means [0,0,1] in one-hot encoding
+#  Class_Map: {
+#           Background: [0, 0, 0],
+#           Leaf: [0, 255, 0],
+#           Stem: [238, 201, 0],
+#  }
   Class_Map: {
-           Background: [0, 0, 0],
-           Leaf: [0, 255, 0],
-           Stem: [238, 201, 0]
+            Background: [0, 0, 0],
+            PotPlant: [255, 255, 255]
   }
 
   Epoch: 50
   Batch_Size: 8
 
   # ['Unet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus','SETR']
-  Model_Used: 'EfficientUnet3Plus====='
+  Model_Used: 'EfficientUnet3Plus'
 
   # if '', There is no pre trained weights, else the name is in /Model_save/
-  Pre_Trained_Weights: ''
+  Pre_Trained_Weights: 'NewNet.h5'
 
 
 
 Predict:
-  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm/predict"
+  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/pred"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'EfficientUnet3Plus7_200_epoch.h5'
+  Pre_Trained_Weights: 'EfficientUnet3Plus7_RB.h5'
 
 
 
@@ -40,7 +44,7 @@ Models_Detail:
     Backbone: 'Xception' # ['Xception', 'ResNet50']
   EfficientUnet3Plus:
     version: 0 # B0 - B7
-    layers: 5 # 5 or 7
+    layers: 7 # 5 or 7
     ASPP: False
     Attention: '' # CBAM or SE or nothing
   EfficientUnet:

@@ -474,7 +474,10 @@ def efficient_net(width_coefficient,
     output = tf.keras.layers.Conv2DTranspose(Class_Num, (3, 3), strides=(2, 2), padding='same')(d1)
     output = tf.keras.layers.Conv2D(Class_Num, (3, 3), kernel_initializer=CONV_KERNEL_INITIALIZER, padding='same')(
         output)
-    output = layers.Activation('softmax')(output)
+    if Class_Num >= 3:
+        output = layers.Activation('softmax')(output)
+    else:
+        output = layers.Activation('sigmoid')(output)
     model = Model(img_input, output, name=model_name)
 
     return model

@@ -6,8 +6,8 @@ import cv2 as cv
 
 with open('../config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
 
 image_path = 'crystals.jpg'
 image_origin = tf.keras.preprocessing.image.load_img(image_path, target_size=(Height, Width))

@@ -50,9 +50,26 @@ else:
     from Model.Effi_Att_Unet3Plus_Det import efficientnet
     create_model = efficientnet()
 
+
+def iou_metric(y_true, y_pred):
+    # 将预测结果转换为二值化（0 或 1）
+    y_pred = tf.round(y_pred)
+    # print(y_pred)
+    # print(y_true)
+
+    # 计算交集
+    intersection = tf.reduce_sum(tf.cast(y_true * y_pred, tf.float32))
+
+    # 计算并集
+    union = tf.reduce_sum(tf.cast(y_true + y_pred, tf.float32)) - intersection
+
+    # 计算 IoU
+    iou = intersection / union
+    return iou
+
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
-    one_hot = np.zeros_like(image)
+    one_hot = np.zeros((Height, Width, len(class_map)))
     if label:
         cnt = 0
         for item in class_map:
@@ -61,6 +78,9 @@ def preprocessing(image, label=False):
             oh = len(class_map) * [0]
             oh[cnt] = 1
             one_hot[mask] = np.array(oh)
+            cnt += 1
+        mask = (one_hot == [0, 0]).all(axis=2)
+        one_hot[mask] = [1, 0]
         return one_hot
     else:
         image = tf.convert_to_tensor(image, dtype=tf.float32)
@@ -71,13 +91,16 @@ def preprocessing(image, label=False):
 def train():
     if pre_trained_weights:
         print('Load Pre Trained Weights:', pre_trained_weights)
-        model = tf.keras.models.load_model(f"Model_save/{pre_trained_weights}")
+        model = tf.keras.models.load_model(f"Model_save/{pre_trained_weights}", custom_objects={'iou_metric': iou_metric})
     else:
         print('Create new Model')
         model = create_model()
     model.summary()
     checkpoint_callback = ModelCheckpoint('Model_save/NewNet.h5', save_weights_only=False, verbose=1)
-    model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
+    if len(class_map) >= 3:
+        model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
+    else:
+        model.compile(optimizer='Adam', loss="binary_crossentropy", metrics=['accuracy', iou_metric])
     retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
     with open('History/history.txt', 'w') as f:
         f.write(str(retval.history))

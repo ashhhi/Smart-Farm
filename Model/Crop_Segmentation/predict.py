@@ -72,12 +72,20 @@ for item in class_map:
     cnt += 1
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
+if with_label:
+    ground_truth = np.argmax(labels, axis=-1)
+    colored_label = np.zeros_like(colored_image, dtype=np.uint8)
+
 
 for n in tqdm(range(predicted_labels.shape[0])):
     for i in range(Height):
         for j in range(Width):
             label = predicted_labels[n, i, j]
+
             colored_image[n, i, j] = color_map[str(label)]
+            if with_label:
+                gt = ground_truth[n, i, j]
+                colored_label[n, i, j] = color_map[str(gt)]
 
 
 #
@@ -89,7 +97,7 @@ for i, image in enumerate(colored_image):
     name = image_name[i]
 
     if with_label:
-        combined_image = np.concatenate((images[i] * 255, labels[i], image), axis=1)
+        combined_image = np.concatenate((images[i] * 255, colored_label[i], image), axis=1)
     else:
         combined_image = np.concatenate((images[i] * 255, image), axis=1)
     # 保存图像文件

@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/image'
-label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/mask'
+image_path = '/Users/shijunshen/Documents/Code/dataset/Remove Background/train'
+label_path = '/Users/shijunshen/Documents/Code/dataset/Remove Background/mask'
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     class_map = yaml_data['Train']['Class_Map']
@@ -20,6 +20,7 @@ def polygon_to_mask(label_path, save_name):
 
     leaf_polygons = []
     stem_polygons = []
+    potplant_polygons = []
 
     # Process each object element
     for object_element in root.findall('object'):
@@ -47,6 +48,8 @@ def polygon_to_mask(label_path, save_name):
         print('------------------------')
         if name == 'leaf' or name == 'lead':
             leaf_polygons.append(polygon_points)
+        if name == 'plant':
+            potplant_polygons.append(polygon_points)
         else:
             stem_polygons.append(polygon_points)
 
@@ -64,6 +67,7 @@ def polygon_to_mask(label_path, save_name):
     # Set colors for stem and leaf
     stem_color = tuple(class_map['Stem'])  # Red color
     leaf_color = tuple(class_map['Leaf'])  # Green color
+    potplant_color = tuple(class_map['PotPlant'])
 
     # Draw leaf polygons in green
     for item in leaf_polygons:
@@ -82,6 +86,12 @@ def polygon_to_mask(label_path, save_name):
         draw.polygon(polygon_points, outline=stem_color, fill=stem_color)
 
 
+    for item in potplant_polygons:
+        # Convert polygon points to integer tuples
+        polygon_points = [(int(x), int(y)) for x, y in item]
+
+        # Draw the polygon on the mask
+        draw.polygon(polygon_points, outline=potplant_color, fill=potplant_color)
 
     # Convert the mask to a NumPy array
     mask.save(save_name)
