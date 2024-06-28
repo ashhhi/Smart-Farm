@@ -1,11 +1,6 @@
 import os
-import yaml
 
-def Dataloader():
-    with open('config.yml', 'r') as file:
-        yaml_data = yaml.safe_load(file)
-        image_path = yaml_data['Train']['image_path']
-        label_path = yaml_data['Train']['label_path']
+def Dataloader(image_path, label_path):
     g = os.walk(image_path)
     image = []
     label = []

@@ -1,6 +1,6 @@
 Train:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/6_18"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented_mask"
 
   Image:
     Width: 320
@@ -9,15 +9,15 @@ Train:
 
   # class ---> RGB value
   # class = 2 means [0,0,1] in one-hot encoding
-#  Class_Map: {
-#           Background: [0, 0, 0],
-#           Leaf: [0, 255, 0],
-#           Stem: [238, 201, 0],
-#  }
   Class_Map: {
-            Background: [0, 0, 0],
-            PotPlant: [255, 255, 255]
+           Background: [0, 0, 0],
+           Leaf: [0, 255, 0],
+           Stem: [238, 201, 0],
   }
+#  Class_Map: {
+#            Background: [0, 0, 0],
+#            PotPlant: [255, 255, 255]
+#  }
 
   Epoch: 50
   Batch_Size: 8
@@ -26,14 +26,15 @@ Train:
   Model_Used: 'EfficientUnet3Plus'
 
   # if '', There is no pre trained weights, else the name is in /Model_save/
-  Pre_Trained_Weights: 'NewNet.h5'
+  Pre_Trained_Weights: ''
 
 
 
 Predict:
-  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/pred"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/Ice Plant(different resolution)/1600*1200"
+  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/Ice Plant(different resolution)/pred"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'EfficientUnet3Plus7_RB.h5'
+  Pre_Trained_Weights: 'EfficientUnet3Plus7_200_epoch_and_50_new.h5'
 
 
 

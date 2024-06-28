@@ -9,6 +9,9 @@ import yaml
 import platform
 from tqdm import tqdm
 from DataLoader.TestPoolDataloader import Dataloader
+from loss import categorical_focal
+from metrics import mIoU
+
 
 os.chdir("./")
 print(os.getcwd())
@@ -27,6 +30,8 @@ with open('config.yml', 'r') as file:
     batch_size = yaml_data['Train']['Batch_Size']
     pre_trained_weights = yaml_data['Train']['Pre_Trained_Weights']
     class_map = yaml_data['Train']['Class_Map']
+    image_path = yaml_data['Train']['image_path']
+    label_path = yaml_data['Train']['label_path']
 
 
 if Model_Used == 'Unet':
@@ -51,21 +56,7 @@ else:
     create_model = efficientnet()
 
 
-def iou_metric(y_true, y_pred):
-    # 将预测结果转换为二值化（0 或 1）
-    y_pred = tf.round(y_pred)
-    # print(y_pred)
-    # print(y_true)
 
-    # 计算交集
-    intersection = tf.reduce_sum(tf.cast(y_true * y_pred, tf.float32))
-
-    # 计算并集
-    union = tf.reduce_sum(tf.cast(y_true + y_pred, tf.float32)) - intersection
-
-    # 计算 IoU
-    iou = intersection / union
-    return iou
 
 def preprocessing(image, label=False):
     image = cv.resize(image, (Width, Height))
@@ -79,8 +70,8 @@ def preprocessing(image, label=False):
             oh[cnt] = 1
             one_hot[mask] = np.array(oh)
             cnt += 1
-        mask = (one_hot == [0, 0]).all(axis=2)
-        one_hot[mask] = [1, 0]
+        mask = (one_hot == [0]*len(class_map)).all(axis=2)
+        one_hot[mask] = [1] + [0] * (len(class_map)-1)
         return one_hot
     else:
         image = tf.convert_to_tensor(image, dtype=tf.float32)
@@ -91,17 +82,21 @@ def preprocessing(image, label=False):
 def train():
     if pre_trained_weights:
         print('Load Pre Trained Weights:', pre_trained_weights)
-        model = tf.keras.models.load_model(f"Model_save/{pre_trained_weights}", custom_objects={'iou_metric': iou_metric})
+        model = tf.keras.models.load_model(f"Model_save/Final/{pre_trained_weights}")
     else:
         print('Create new Model')
         model = create_model()
     model.summary()
     checkpoint_callback = ModelCheckpoint('Model_save/NewNet.h5', save_weights_only=False, verbose=1)
-    if len(class_map) >= 3:
-        model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy'])
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./History', write_graph=True)
+    loss = True
+    if loss:
+        model.compile(optimizer='Adam', loss=categorical_focal([0.1, 1, 10], 2), metrics=['accuracy', mIoU])
+    elif len(class_map) >= 3:
+        model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy', mIoU])
     else:
-        model.compile(optimizer='Adam', loss="binary_crossentropy", metrics=['accuracy', iou_metric])
-    retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback])
+        model.compile(optimizer='Adam', loss="binary_crossentropy", metrics=['accuracy', mIoU])
+    retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback, tensorboard_callback])
     with open('History/history.txt', 'w') as f:
         f.write(str(retval.history))
         print("Write History into History/history.txt")
@@ -109,7 +104,7 @@ def train():
 
 
 if __name__ == '__main__':
-    image_path, label_path, _ = Dataloader()
+    image_path, label_path, _ = Dataloader(image_path, label_path)
     images = []
     labels = []
     print('Load Data and Preprocess...')

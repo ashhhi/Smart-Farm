@@ -30,6 +30,8 @@ with open('config.yml', 'r') as file:
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
     model_path = f"Model_save/Final/{pre_trained_weights}"
     class_map = yaml_data['Train']['Class_Map']
+    image_path = yaml_data['Predict']['image_path']
+    label_path = yaml_data['Predict']['label_path']
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
@@ -42,7 +44,7 @@ model = tf.keras.models.load_model(model_path, custom_objects=custom_objects, co
 model.compile()
 
 
-image_path, label_path, image_name = Dataloader()
+image_path, label_path, image_name = Dataloader(image_path, label_path)
 images = []
 labels = []
 print('Load Data and Preprocess...')
