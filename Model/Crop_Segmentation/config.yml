@@ -1,6 +1,6 @@
 Train:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented_mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/train"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
 
   Image:
     Width: 320
@@ -9,17 +9,17 @@ Train:
 
   # class ---> RGB value
   # class = 2 means [0,0,1] in one-hot encoding
-  Class_Map: {
-           Background: [0, 0, 0],
-           Leaf: [0, 255, 0],
-           Stem: [238, 201, 0],
-  }
 #  Class_Map: {
-#            Background: [0, 0, 0],
-#            PotPlant: [255, 255, 255]
+#           Background: [0, 0, 0],
+#           Leaf: [0, 255, 0],
+#           Stem: [238, 201, 0],
 #  }
+  Class_Map: {
+            Background: [0, 0, 0],
+            PotPlant: [255, 255, 255]
+  }
 
-  Epoch: 50
+  Epoch: 100
   Batch_Size: 8
 
   # ['Unet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus','SETR']
@@ -31,10 +31,11 @@ Train:
 
 
 Predict:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/Ice Plant(different resolution)/1600*1200"
-  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/Ice Plant(different resolution)/pred"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/train"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
+  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/pred"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'EfficientUnet3Plus7_200_epoch_and_50_new.h5'
+  Pre_Trained_Weights: 'removeBackground.h5'
 
 
 

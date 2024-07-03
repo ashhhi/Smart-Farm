@@ -89,9 +89,15 @@ def train():
     model.summary()
     checkpoint_callback = ModelCheckpoint('Model_save/NewNet.h5', save_weights_only=False, verbose=1)
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./History', write_graph=True)
-    loss = True
+    loss = False
+    """
+    尝试过的:
+            [0.1, 1, 10]
+            [0.5, 1, 3]
+    """
+
     if loss:
-        model.compile(optimizer='Adam', loss=categorical_focal([0.1, 1, 10], 2), metrics=['accuracy', mIoU])
+        model.compile(optimizer='Adam', loss=categorical_focal([0.5, 1, 3], 2), metrics=['accuracy', mIoU])
     elif len(class_map) >= 3:
         model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy', mIoU])
     else:

@@ -14,12 +14,11 @@ from train import preprocessing
 os.chdir("./")
 print(os.getcwd())
 
-with_label = False
-
-
 custom_objects = {
     'ConcatClassTokenAddPosEmbed': ConcatClassTokenAddPosEmbed
 }
+
+
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
@@ -59,7 +58,7 @@ for i in tqdm(range(num)):
     image = cv.imread(image)
     image = preprocessing(image)
     images.append(image)
-    if with_label:
+    if label_path:
         label = cv.imread(label)
         label = preprocessing(label, True)
         labels.append(label)
@@ -74,7 +73,7 @@ for item in class_map:
     cnt += 1
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
-if with_label:
+if label_path:
     ground_truth = np.argmax(labels, axis=-1)
     colored_label = np.zeros_like(colored_image, dtype=np.uint8)
 
@@ -85,7 +84,7 @@ for n in tqdm(range(predicted_labels.shape[0])):
             label = predicted_labels[n, i, j]
 
             colored_image[n, i, j] = color_map[str(label)]
-            if with_label:
+            if label_path:
                 gt = ground_truth[n, i, j]
                 colored_label[n, i, j] = color_map[str(gt)]
 
@@ -98,7 +97,7 @@ for i, image in enumerate(colored_image):
     # image_name = f"{i}.png"
     name = image_name[i]
 
-    if with_label:
+    if label_path:
         combined_image = np.concatenate((images[i] * 255, colored_label[i], image), axis=1)
     else:
         combined_image = np.concatenate((images[i] * 255, image), axis=1)
