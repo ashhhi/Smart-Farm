@@ -46,7 +46,7 @@ with open('/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Cro
     Width = yaml_data['Train']['Image']['Width']
     Height = yaml_data['Train']['Image']['Height']
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/6_29/PIC_20240628_102600080.jpg'
+image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/6_29/PIC_20240629_144416410.jpg'
 image_origin = tf.keras.preprocessing.image.load_img(image_path, target_size=(Height, Width))
 image_origin = tf.keras.preprocessing.image.img_to_array(image_origin)
 image_origin = np.expand_dims(image_origin, axis=0)
@@ -93,28 +93,68 @@ for contour in contours:
 # Average thickness in pixels level
 average_thickness_pixels = np.mean(thicknesses) * 2    # two sides
 print('Thickness (pixels):', average_thickness_pixels)
-
-
-for [vx, vy, x, y] in line_parameter:
-    # Calculate two points on the line for drawing
-    point1 = (x - 1000 * vx, y - 1000 * vy)
-    point2 = (x + 1000 * vx, y + 1000 * vy)
-
-    point1 = (int(point1[0]), int(point1[1]))
-    point2 = (int(point2[0]), int(point2[1]))
-    # Draw the line on the image
-    cv2.line(stem_region, point1, point2, (127), 2)
-
-cv2.imshow('123', stem_region)
-cv2.waitKey()
 #
-# model = tf.keras.models.load_model('removeBackground.h5', custom_objects={"mIoU": mIoU})
-# probability_vector = model.predict(image)
-# max_prob_class_pot = np.argmax(probability_vector, axis=-1)
 #
-# max_prob_class_pot = max_prob_class_pot.squeeze()
-# max_prob_class_pot[max_prob_class_pot==1] = 255
-# max_prob_class_pot = np.array(max_prob_class_pot, dtype=np.uint8)
+# for [vx, vy, x, y] in line_parameter:
+#     # Calculate two points on the line for drawing
+#     point1 = (x - 1000 * vx, y - 1000 * vy)
+#     point2 = (x + 1000 * vx, y + 1000 * vy)
 #
-# cv2.imshow('123', max_prob_class_pot)
+#     point1 = (int(point1[0]), int(point1[1]))
+#     point2 = (int(point2[0]), int(point2[1]))
+#     # Draw the line on the image
+#     cv2.line(stem_region, point1, point2, (127), 2)
+#
+# cv2.imshow('123', stem_region)
 # cv2.waitKey()
+
+model = tf.keras.models.load_model('NewNet.h5', custom_objects={"mIoU": mIoU})
+probability_vector = model.predict(image)
+max_prob_class_pot = np.argmax(probability_vector, axis=-1)
+
+max_prob_class_pot = max_prob_class_pot.squeeze()
+max_prob_class_pot[max_prob_class_pot==1] = 255
+max_prob_class_pot = np.array(max_prob_class_pot, dtype=np.uint8)
+
+'''
+先腐蚀后膨胀，既保持原有大小，又分离两个植物盆
+'''
+# 定义腐蚀操作的内核大小和形状
+kernel = np.ones((3, 3), np.uint8)
+
+# 进行多次腐蚀操作
+iterations = 10  # 根据需要调整腐蚀的次数
+max_prob_class_pot = cv2.erode(max_prob_class_pot, kernel, iterations=iterations)
+max_prob_class_pot = cv2.dilate(max_prob_class_pot, kernel, iterations=iterations)
+
+
+'''
+方框检测，框出目标的盆子
+'''
+contours, _ = cv2.findContours(max_prob_class_pot, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+largest_contour = max(contours, key=lambda arr: len(arr))
+
+x, y, width, height = cv2.boundingRect(largest_contour)
+
+print(x, y, width, height)
+cv2.rectangle(max_prob_class_pot, (x, y), (x + width, y + height), 127)
+
+'''
+测量出实际的盆子长宽为：50cm，25cm，也就是2:1
+'''
+from sympy import symbols, Eq, solve, sin, cos
+# 解方程
+x = symbols('x')        # x 是盆子的宽，那么 2x 是盆子的长
+alpha = symbols('alpha')
+equation1 = Eq(cos(alpha) * x + 2 * x * sin(alpha), height)
+equation2 = Eq(sin(alpha) * x + 2 * x * cos(alpha), width)
+solution = solve((equation1, equation2), (x, alpha))
+x = solution[0][0].evalf()
+
+ratio = x / 25      # 25 是以cm为单位的，因此ratio的单位是 像素/厘米
+stem_thickness_real = average_thickness_pixels / ratio
+print('stem thickness(cm): ', stem_thickness_real)
+
+cv2.imwrite('image_save.jpg', max_prob_class_pot)
+cv2.imshow('123', max_prob_class_pot)
+cv2.waitKey()
