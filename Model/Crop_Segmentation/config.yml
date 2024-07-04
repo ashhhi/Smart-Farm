@@ -1,6 +1,6 @@
 Train:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/train"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/train"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/mask"
 
   Image:
     Width: 320
@@ -31,11 +31,11 @@ Train:
 
 
 Predict:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/train"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask"
-  save_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/pred"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/ExtPlantSeg/ExtPlantSeg1/images"
+  label_path: ""
+  save_path: "/Users/shijunshen/Desktop/pred/未命名文件夹"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'removeBackground.h5'
+  Pre_Trained_Weights: 'NewNet.h5'
 
 
 

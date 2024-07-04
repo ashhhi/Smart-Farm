@@ -29,8 +29,8 @@ with open('config.yml', 'r') as file:
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
     model_path = f"Model_save/Final/{pre_trained_weights}"
     class_map = yaml_data['Train']['Class_Map']
-    image_path = yaml_data['Predict']['image_path']
-    label_path = yaml_data['Predict']['label_path']
+    image_path_ = yaml_data['Predict']['image_path']
+    label_path_ = yaml_data['Predict']['label_path']
 
     # 创建保存图像的目录
     os.makedirs(output_dir, exist_ok=True)
@@ -43,7 +43,7 @@ model = tf.keras.models.load_model(model_path, custom_objects=custom_objects, co
 model.compile()
 
 
-image_path, label_path, image_name = Dataloader(image_path, label_path)
+image_path, label_path, image_name = Dataloader(image_path_, label_path_)
 images = []
 labels = []
 print('Load Data and Preprocess...')
@@ -58,7 +58,7 @@ for i in tqdm(range(num)):
     image = cv.imread(image)
     image = preprocessing(image)
     images.append(image)
-    if label_path:
+    if label_path_:
         label = cv.imread(label)
         label = preprocessing(label, True)
         labels.append(label)
@@ -73,7 +73,7 @@ for item in class_map:
     cnt += 1
 predicted_labels = np.argmax(probability_vector, axis=-1)
 colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
-if label_path:
+if label_path_:
     ground_truth = np.argmax(labels, axis=-1)
     colored_label = np.zeros_like(colored_image, dtype=np.uint8)
 
@@ -84,7 +84,7 @@ for n in tqdm(range(predicted_labels.shape[0])):
             label = predicted_labels[n, i, j]
 
             colored_image[n, i, j] = color_map[str(label)]
-            if label_path:
+            if label_path_:
                 gt = ground_truth[n, i, j]
                 colored_label[n, i, j] = color_map[str(gt)]
 
@@ -97,7 +97,7 @@ for i, image in enumerate(colored_image):
     # image_name = f"{i}.png"
     name = image_name[i]
 
-    if label_path:
+    if label_path_:
         combined_image = np.concatenate((images[i] * 255, colored_label[i], image), axis=1)
     else:
         combined_image = np.concatenate((images[i] * 255, image), axis=1)

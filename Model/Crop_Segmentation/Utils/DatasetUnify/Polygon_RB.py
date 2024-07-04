@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/train'
-label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RemoveBackground/mask'
+image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/train'
+label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/mask'
 with open('/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     class_map = yaml_data['Train']['Class_Map']
@@ -46,12 +46,8 @@ def polygon_to_mask(label_path, save_name):
         print('Bounding Box:', xmin, ymin, xmax, ymax)
         print('Polygon Points:', polygon_points)
         print('------------------------')
-        if name == 'leaf' or name == 'lead':
-            leaf_polygons.append(polygon_points)
         if name == 'plant' or name == 'pot':
             potplant_polygons.append(polygon_points)
-        else:
-            stem_polygons.append(polygon_points)
 
 
     # Get the image size from the XML or provide it manually
@@ -73,10 +69,6 @@ def polygon_to_mask(label_path, save_name):
 
         # Draw the polygon on the mask
         draw.polygon(polygon_points, outline=potplant_color, fill=potplant_color)
-
-
-
-
 
     # Convert the mask to a NumPy array
     mask.save(save_name)

@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import ModelCheckpoint
 import os
 import cv2 as cv
@@ -82,7 +83,7 @@ def preprocessing(image, label=False):
 def train():
     if pre_trained_weights:
         print('Load Pre Trained Weights:', pre_trained_weights)
-        model = tf.keras.models.load_model(f"Model_save/Final/{pre_trained_weights}")
+        model = tf.keras.models.load_model(f"Model_save/Final/{pre_trained_weights}",custom_objects={'mIoU': mIoU})
     else:
         print('Create new Model')
         model = create_model()
@@ -96,13 +97,16 @@ def train():
             [0.5, 1, 3]
     """
 
+    x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, random_state=42)
+
+
     if loss:
         model.compile(optimizer='Adam', loss=categorical_focal([0.5, 1, 3], 2), metrics=['accuracy', mIoU])
     elif len(class_map) >= 3:
         model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy', mIoU])
     else:
         model.compile(optimizer='Adam', loss="binary_crossentropy", metrics=['accuracy', mIoU])
-    retval = model.fit(images, labels, epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback, tensorboard_callback])
+    retval = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=epoch, verbose=1, batch_size=batch_size, callbacks=[checkpoint_callback, tensorboard_callback])
     with open('History/history.txt', 'w') as f:
         f.write(str(retval.history))
         print("Write History into History/history.txt")
