@@ -1,6 +1,6 @@
 Train:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/train"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB1/mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB2/Smart Farm.v3i.voc/augmented"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB2/Smart Farm.v3i.voc/augmented_mask"
 
   Image:
     Width: 320
@@ -9,15 +9,15 @@ Train:
 
   # class ---> RGB value
   # class = 2 means [0,0,1] in one-hot encoding
-#  Class_Map: {
-#           Background: [0, 0, 0],
-#           Leaf: [0, 255, 0],
-#           Stem: [238, 201, 0],
-#  }
   Class_Map: {
-            Background: [0, 0, 0],
-            PotPlant: [255, 255, 255]
+           Background: [0, 0, 0],
+           Leaf: [0, 255, 0],
+           Stem: [238, 201, 0],
   }
+#  Class_Map: {
+#            Background: [0, 0, 0],
+#            PotPlant: [255, 255, 255]
+#  }
 
   Epoch: 100
   Batch_Size: 8
@@ -31,11 +31,11 @@ Train:
 
 
 Predict:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/ExtPlantSeg/ExtPlantSeg1/images"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB2/Smart Farm.v3i.voc/augmented"
   label_path: ""
   save_path: "/Users/shijunshen/Desktop/pred/未命名文件夹"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'NewNet.h5'
+  Pre_Trained_Weights: 'RB_Iceplant.h5'
 
 
 

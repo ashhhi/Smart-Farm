@@ -66,47 +66,20 @@ max_prob_class_stem = np.argmax(probability_vector, axis=-1)
 # Extract stem region
 stem_region = np.where(max_prob_class_stem == 2, 255, 0).astype(np.uint8).squeeze()
 
-# Find contours
-contours, _ = cv2.findContours(stem_region, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-# Compute thickness for each stem
-thicknesses = []
+# 进行骨架化处理
+skeleton = cv2.ximgproc.thinning(stem_region)
 
-line_parameter = []
+# 进行距离变换
+distance_transform = cv2.distanceTransform(stem_region, cv2.DIST_L2, 3)
 
-for contour in contours:
-    if len(contour) < 30:
-        continue
-    # Fit a line to the contour
-    [vx, vy, x, y] = cv2.fitLine(contour, cv2.DIST_L2, 0, 0.01, 0.01)
-    line_parameter.append([vx, vy, x, y])
-    # Convert x and y to floating-point
-    x = float(x)
-    y = float(y)
+# 选择阈值来确定树干区域
+distance_transform[skeleton == 0] = 0
 
-    # Compute thickness
+# 计算树干的平均粗度
+mean_thickness = np.mean(distance_transform[distance_transform > 0]) * 2
 
-    # distances = np.abs(cv2.pointPolygonTest(contour, (x, y), True))
-    # thickness = np.mean(distances)
-    thickness = calculate_average_distance(points=contour, line_params=[vx, vy, x, y])
-    thicknesses.append(thickness)
-
-# Average thickness in pixels level
-average_thickness_pixels = np.mean(thicknesses) * 2    # two sides
-print('Thickness (pixels):', average_thickness_pixels)
-#
-#
-# for [vx, vy, x, y] in line_parameter:
-#     # Calculate two points on the line for drawing
-#     point1 = (x - 1000 * vx, y - 1000 * vy)
-#     point2 = (x + 1000 * vx, y + 1000 * vy)
-#
-#     point1 = (int(point1[0]), int(point1[1]))
-#     point2 = (int(point2[0]), int(point2[1]))
-#     # Draw the line on the image
-#     cv2.line(stem_region, point1, point2, (127), 2)
-#
-# cv2.imshow('123', stem_region)
-# cv2.waitKey()
+# 输出树干的平均粗度
+print('Mean Thickness:', mean_thickness)
 
 model = tf.keras.models.load_model('RB_Iceplant.h5', custom_objects={"mIoU": mIoU})
 probability_vector = model.predict(image)
@@ -153,7 +126,7 @@ solution = solve((equation1, equation2), (x, alpha))
 x = solution[0][0].evalf()
 
 ratio = x / 25      # 25 是以cm为单位的，因此ratio的单位是 像素/厘米
-stem_thickness_real = average_thickness_pixels / ratio
+stem_thickness_real = mean_thickness / ratio
 print('stem thickness(cm): ', stem_thickness_real)
 
 cv2.imwrite('image_save.jpg', max_prob_class_pot)

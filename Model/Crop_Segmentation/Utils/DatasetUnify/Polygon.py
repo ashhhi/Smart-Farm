@@ -48,7 +48,7 @@ def polygon_to_mask(label_path, save_name):
         print('------------------------')
         if name == 'leaf' or name == 'lead':
             leaf_polygons.append(polygon_points)
-        if name == 'plant' or name == 'pot':
+        elif name == 'plant' or name == 'pot':
             potplant_polygons.append(polygon_points)
         else:
             stem_polygons.append(polygon_points)

@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB2/Smart Farm.v3i.voc/train'
-label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/RB2/Smart Farm.v3i.voc/mask'
+image_path = '/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/Morphology/'
+label_path = '/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/Morphology/'
 with open('/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     class_map = yaml_data['Train']['Class_Map']
@@ -46,8 +46,12 @@ def polygon_to_mask(label_path, save_name):
         print('Bounding Box:', xmin, ymin, xmax, ymax)
         print('Polygon Points:', polygon_points)
         print('------------------------')
-        if name == 'plant' or name == 'pot':
+        if name == 'leaf' or name == 'lead':
+            leaf_polygons.append(polygon_points)
+        elif name == 'plant' or name == 'pot':
             potplant_polygons.append(polygon_points)
+        else:
+            stem_polygons.append(polygon_points)
 
 
     # Get the image size from the XML or provide it manually
@@ -61,14 +65,32 @@ def polygon_to_mask(label_path, save_name):
     draw = ImageDraw.Draw(mask)
 
     # Set colors for stem and leaf
-    potplant_color = tuple(class_map['PotPlant'])
+    stem_color = (255, 255, 255)
 
-    for item in potplant_polygons:
+    # for item in potplant_polygons:
+    #     # Convert polygon points to integer tuples
+    #     polygon_points = [(int(x), int(y)) for x, y in item]
+    #
+    #     # Draw the polygon on the mask
+    #     draw.polygon(polygon_points, outline=potplant_color, fill=potplant_color)
+
+
+    # Draw stem polygons in red
+    for item in stem_polygons:
         # Convert polygon points to integer tuples
         polygon_points = [(int(x), int(y)) for x, y in item]
 
         # Draw the polygon on the mask
-        draw.polygon(polygon_points, outline=potplant_color, fill=potplant_color)
+        draw.polygon(polygon_points, outline=stem_color, fill=stem_color)
+
+    # # Draw leaf polygons in green
+    # for item in leaf_polygons:
+    #     # Convert polygon points to integer tuples
+    #     polygon_points = [(int(x), int(y)) for x, y in item]
+    #
+    #     # Draw the polygon on the mask
+    #     draw.polygon(polygon_points, outline=leaf_color, fill=leaf_color)
+
 
     # Convert the mask to a NumPy array
     mask.save(save_name)
