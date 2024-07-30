@@ -52,6 +52,12 @@ elif Model_Used == 'DeeplabV3Plus':
     from Model.DeeplabV3Plus import DeeplabV3Plus as create_model
 elif Model_Used == 'SETR':
     from Model.SETR import vit_base_patch16_224_in21k as create_model
+elif Model_Used == 'FCN':
+    from Model.FCN import FCN as create_model
+elif Model_Used == 'SegNet':
+    from Model.SegNet import SegNet as create_model
+elif Model_Used == 'RefineNet':
+    from Model.RefineNet import RefineNet as create_model
 else:
     from Model.Effi_Att_Unet3Plus_Det import efficientnet
     create_model = efficientnet()
@@ -83,7 +89,7 @@ def preprocessing(image, label=False):
 def train():
     if pre_trained_weights:
         print('Load Pre Trained Weights:', pre_trained_weights)
-        model = tf.keras.models.load_model(f"Model_save/Final/{pre_trained_weights}",custom_objects={'mIoU': mIoU})
+        model = tf.keras.models.load_model(f"Model_save/again/{pre_trained_weights}", custom_objects={'mIoU': mIoU, 'categorical_focal_fixed': categorical_focal})
     else:
         print('Create new Model')
         model = create_model()
@@ -99,9 +105,8 @@ def train():
 
     x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, random_state=42)
 
-
     if loss:
-        model.compile(optimizer='Adam', loss=categorical_focal([0.5, 1, 3], 2), metrics=['accuracy', mIoU])
+        model.compile(optimizer='Adam', loss=categorical_focal([0.1, 1, 10], 2), metrics=['accuracy', mIoU])
     elif len(class_map) >= 3:
         model.compile(optimizer='Adam', loss="categorical_crossentropy", metrics=['accuracy', mIoU])
     else:

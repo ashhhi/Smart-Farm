@@ -1,15 +1,16 @@
 import os
 import random
-
+import time
 import cv2 as cv
 import tensorflow as tf
 import numpy as np
 from tqdm import tqdm
-
+from sklearn.model_selection import train_test_split
 from DataLoader.TestPoolDataloader import Dataloader
 import yaml
 from Model.SETR import ConcatClassTokenAddPosEmbed
 from train import preprocessing
+from evaluation import Evaluation
 
 os.chdir("./")
 print(os.getcwd())
@@ -24,10 +25,11 @@ with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Train']['Image']['Width']
     Height = yaml_data['Train']['Image']['Height']
-    output_dir = yaml_data['Predict']['save_path']
+
     is_all = yaml_data['Predict']['all']
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
-    model_path = f"Model_save/Final/{pre_trained_weights}"
+    model_path = f"Model_save/again/{pre_trained_weights}"
+    output_dir = os.path.join(yaml_data['Predict']['save_path'], model_path.split('/')[-1])
     class_map = yaml_data['Train']['Class_Map']
     image_path_ = yaml_data['Predict']['image_path']
     label_path_ = yaml_data['Predict']['label_path']
@@ -41,9 +43,11 @@ with open('config.yml', 'r') as file:
 
 model = tf.keras.models.load_model(model_path, custom_objects=custom_objects, compile=False)
 model.compile()
+model.summary()
 
 
 image_path, label_path, image_name = Dataloader(image_path_, label_path_)
+
 images = []
 labels = []
 print('Load Data and Preprocess...')
@@ -63,36 +67,46 @@ for i in tqdm(range(num)):
         label = preprocessing(label, True)
         labels.append(label)
 
+# x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, random_state=42)
+# images = np.array(x_test)
+# labels = np.array(y_test)
+
 images = np.array(images)
-labels = np.array(labels) * 255
+labels = np.array(labels)
+
+start_time = time.time()
 probability_vector = model.predict(images)
+end_time = time.time()
+# 计算时间差
+execution_time = end_time - start_time
+# 打印运行时间
+print("代码运行时间：", execution_time, "秒")
 color_map = {}
 cnt = 0
 for item in class_map:
     color_map[str(cnt)] = list(reversed(class_map[item]))   # RGB --> BGR
     cnt += 1
 predicted_labels = np.argmax(probability_vector, axis=-1)
-colored_image = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
+colored_prediction = np.zeros((predicted_labels.shape[0], Height, Width, 3), dtype=np.uint8)
 if label_path_:
     ground_truth = np.argmax(labels, axis=-1)
-    colored_label = np.zeros_like(colored_image, dtype=np.uint8)
-
+    colored_label = np.zeros_like(colored_prediction, dtype=np.uint8)
 
 for n in tqdm(range(predicted_labels.shape[0])):
     for i in range(Height):
         for j in range(Width):
             label = predicted_labels[n, i, j]
-
-            colored_image[n, i, j] = color_map[str(label)]
+            colored_prediction[n, i, j] = color_map[str(label)]
             if label_path_:
                 gt = ground_truth[n, i, j]
                 colored_label[n, i, j] = color_map[str(gt)]
 
-
-#
+print('start evaluation')
+if label_path_:
+    Evaluation(predicted_labels, ground_truth)
 # Save Together
 # 遍历数组并保存每个元素为图像文件
-for i, image in enumerate(colored_image):
+for i, image in enumerate(colored_prediction):
     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
     # image_name = f"{i}.png"
     name = image_name[i]
@@ -108,20 +122,22 @@ for i, image in enumerate(colored_image):
 
     cv.imwrite(image_path, combined_image)
 
+if label_path_:
+    # Save Independently
+    for i, image in enumerate(colored_prediction):
+        gt_path = os.path.join(output_dir, 'gt')
+        pred_path = os.path.join(output_dir, 'pred')
+        original_path = os.path.join(output_dir, 'origin')
+        if not os.path.exists(gt_path):
+            os.makedirs(gt_path)
+        if not os.path.exists(pred_path):
+            os.makedirs(pred_path)
+        if not os.path.exists(original_path):
+            os.makedirs(original_path)
+        # 构建图像文件名（例如，image_0.png, image_1.png, ...）
+        name = f"{i}.png"
 
-# Save Independently
-# for i, image in enumerate(colored_image):
-#     gt_path = os.path.join(output_dir, 'gt')
-#     pred_path = os.path.join(output_dir, 'pred')
-#     if not os.path.exists(gt_path):
-#         os.makedirs(gt_path)
-#     if not os.path.exists(pred_path):
-#         os.makedirs(pred_path)
-#     # 构建图像文件名（例如，image_0.png, image_1.png, ...）
-#     # name = f"{i}.png"
-#     name = image_name[i]
-#
-#     # 保存图像文件
-#     cv.imwrite(os.path.join(gt_path, name), labels[i])
-#     cv.imwrite(os.path.join(pred_path, name), image)
-
+        # 保存图像文件
+        cv.imwrite(os.path.join(gt_path, name), colored_label[i])
+        cv.imwrite(os.path.join(pred_path, name), image)
+        cv.imwrite(os.path.join(original_path, name), images[i]*255)

@@ -106,7 +106,7 @@ for i in tqdm(range(num)):
 images = np.array(images)
 labels = np.array(labels) * 255
 
-model = tf.keras.models.load_model('removeBackground.h5',custom_objects={"mIoU": mIoU})
+model = tf.keras.models.load_model('removeBackground.h5', custom_objects={"mIoU": mIoU})
 probability_vector = model.predict(images)
 max_prob_class_pot = np.argmax(probability_vector, axis=-1)
 
@@ -115,7 +115,7 @@ for item in max_prob_class_pot:
     num_pixels_pot = np.sum(item == 1)
     num_pixels_pot_list.append(num_pixels_pot)
 
-model = tf.keras.models.load_model('EfficientUnet3Plus7_200_epoch.h5')
+model = tf.keras.models.load_model('EfficientUnet3Plus.h5', custom_objects={"mIoU": mIoU})
 probability_vector = model.predict(images)
 # print(probability_vector.shape)
 max_prob_class_leaf = np.argmax(probability_vector, axis=-1)

@@ -2,6 +2,8 @@ import cv2
 import tensorflow as tf
 import yaml
 import numpy as np
+from removeBackground import removebackground
+from PIL import Image
 def mIoU(y_true, y_pred):
     true = tf.reshape(tf.argmax(y_true, axis=-1), [-1])
     pred = tf.reshape(tf.argmax(y_pred, axis=-1), [-1])
@@ -46,7 +48,7 @@ with open('/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Cro
     Width = yaml_data['Train']['Image']['Width']
     Height = yaml_data['Train']['Image']['Height']
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/XIAOMICamera/6_29/PIC_20240629_144416410.jpg'
+image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Ice Plant(different resolution)/1600*1200/3671716968397_.pic.jpg'
 image_origin = tf.keras.preprocessing.image.load_img(image_path, target_size=(Height, Width))
 image_origin = tf.keras.preprocessing.image.img_to_array(image_origin)
 image_origin = np.expand_dims(image_origin, axis=0)
@@ -54,7 +56,7 @@ image = image_origin / 255.0  # 标准化图像像素值
 
 
 
-model = tf.keras.models.load_model('EfficientUnet3Plus7_200_epoch.h5')
+model = tf.keras.models.load_model('EfficientUnet3Plus.h5', custom_objects={"mIoU": mIoU})
 
 probability_vector = model.predict(image)
 # print(probability_vector.shape)
@@ -81,12 +83,14 @@ mean_thickness = np.mean(distance_transform[distance_transform > 0]) * 2
 # 输出树干的平均粗度
 print('Mean Thickness:', mean_thickness)
 
-model = tf.keras.models.load_model('RB_Iceplant.h5', custom_objects={"mIoU": mIoU})
-probability_vector = model.predict(image)
-max_prob_class_pot = np.argmax(probability_vector, axis=-1)
+# model = tf.keras.models.load_model('RB_Iceplant.h5', custom_objects={"mIoU": mIoU})
+# probability_vector = model.predict(image)
+# max_prob_class_pot = np.argmax(probability_vector, axis=-1)
+# max_prob_class_pot = max_prob_class_pot.squeeze()
 
-max_prob_class_pot = max_prob_class_pot.squeeze()
-max_prob_class_pot[max_prob_class_pot==1] = 255
+max_prob_class_pot = removebackground(image).squeeze()
+
+max_prob_class_pot[max_prob_class_pot == 1] = 255
 max_prob_class_pot = np.array(max_prob_class_pot, dtype=np.uint8)
 
 '''
@@ -130,5 +134,7 @@ stem_thickness_real = mean_thickness / ratio
 print('stem thickness(cm): ', stem_thickness_real)
 
 cv2.imwrite('image_save.jpg', max_prob_class_pot)
-cv2.imshow('123', max_prob_class_pot)
+cv2.imshow('pot', max_prob_class_pot)
+img_origin = cv2.imread(image_path)
+cv2.imshow('origin', img_origin)
 cv2.waitKey()

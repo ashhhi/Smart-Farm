@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 import xml.etree.ElementTree as ET
 
 
-image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Ash-Roboflow/Version1/image'
-label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Ash-Roboflow/Version1/mask'
+image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/image'
+label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/mask'
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     class_map = yaml_data['Train']['Class_Map']

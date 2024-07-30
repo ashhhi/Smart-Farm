@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from adaptiveFilter_Conv import adaptiveDirectionFilter
+from Model.Crop_Segmentation.Utils.VegetationIndices import VegetationIndices
 
 
 def hysteresisThresh(image, TH=170, TL=100):
@@ -23,20 +24,20 @@ def hysteresisThresh(image, TH=170, TL=100):
 # 读取图像并转换为灰度图像
 image = cv2.imread('/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/7.5 iphone/IMG_7748.jpeg')
 image = cv2.resize(image, (320, 320))
-b, g, r = cv2.split(image)
+gray_image = (VegetationIndices(image).ExG() + 1) * 127.5
 # 计算最大灰度值
-max_value = np.max(g)
+max_value = np.max(gray_image)
 # 灰度拉伸
-green_image = g.astype(float) / max_value * 255
+gray_image = gray_image.astype(float) / max_value * 255
 # adaptive = adaptiveDirectionFilter(gray_image, 11, 1, 5)
 
 # 对灰度图像进行高斯平滑
-blurred_image = cv2.GaussianBlur(green_image, (7, 7), 0)
+blurred_image = cv2.GaussianBlur(gray_image, (7, 7), 0)
 
 
 adaptive = adaptiveDirectionFilter(blurred_image, 5, 1, 5)
 
-thresh = hysteresisThresh(adaptive, TH=100, TL=40)
+thresh = hysteresisThresh(adaptive, TH=70, TL=50)
 
 # 浮点型转成uint8型
 thresh = cv2.convertScaleAbs(thresh)
@@ -68,8 +69,8 @@ plt.title("Original Image")
 plt.imshow(image, cmap='gray')
 
 plt.subplot(2, 4, 2)
-plt.title("Green Image")
-plt.imshow(green_image, cmap='gray')
+plt.title("Gray Image")
+plt.imshow(gray_image, cmap='gray')
 
 plt.subplot(2, 4, 3)
 plt.title("Blurred Image")

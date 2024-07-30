@@ -60,33 +60,36 @@ result = np.zeros_like(image)
 cv2.drawContours(result, filtered_contours, -1, (0, 0, 255), thickness=cv2.FILLED)
 cv2.drawContours(result, filtered_contours, -1, (0, 255, 0), thickness=3)
 
-# 显示结果
+# 保存结果
+cv2.imwrite('original_image.png', image)
+cv2.imwrite('gray_image.png', gray_image)
+cv2.imwrite('blurred_image.png', blurred_image)
+cv2.imwrite('ADF_image.png', adaptive)
+cv2.imwrite('thresh_image.png', thresh)
+cv2.imwrite('result.png', result)
+# 保存结果图像
 plt.figure(figsize=(15, 7))
 
-plt.subplot(2, 4, 1)
-plt.title("Original Image")
+plt.subplot(2, 3, 1)
 plt.imshow(image, cmap='gray')
+plt.axis('off')
 
-plt.subplot(2, 4, 2)
-plt.title("Gray Image")
+plt.subplot(2, 3, 2)
 plt.imshow(gray_image, cmap='gray')
+plt.axis('off')
 
-plt.subplot(2, 4, 3)
-plt.title("Blurred Image")
+plt.subplot(2, 3, 3)
 plt.imshow(blurred_image, cmap='gray')
+plt.axis('off')
 
-plt.subplot(2, 4, 4)
-plt.title("Adaptive Direction Filter")
+plt.subplot(2, 3, 4)
 plt.imshow(adaptive, cmap='gray')
+plt.axis('off')
 
-
-plt.subplot(2, 4, 5)
-plt.title("Hysteresis Threshed Image")
+plt.subplot(2, 3, 5)
 plt.imshow(thresh, cmap='gray')
+plt.axis('off')
 
-plt.subplot(2, 4, 6)
-plt.title("Largest Edge Contour")
+plt.subplot(2, 3, 6)
 plt.imshow(result, cmap='gray')
-
-
-plt.show()
+plt.axis('off')

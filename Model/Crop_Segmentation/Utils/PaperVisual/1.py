@@ -1,0 +1,6 @@
+loss['RefineNet'] = RefineNet['loss']
+accuracy['RefineNet'] = RefineNet['accuracy']
+mIoU['RefineNet'] = RefineNet['mIoU']
+val_loss['RefineNet'] = RefineNet['val_loss']
+val_accuracy['RefineNet'] = RefineNet['val_accuracy']
+val_mIoU['RefineNet'] = RefineNet['val_mIoU']

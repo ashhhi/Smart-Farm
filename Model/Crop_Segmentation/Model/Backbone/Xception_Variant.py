@@ -15,8 +15,8 @@ import yaml
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
-    Width = yaml_data['Image']['Width']
-    Height = yaml_data['Image']['Height']
+    Width = yaml_data['Train']['Image']['Width']
+    Height = yaml_data['Train']['Image']['Height']
 
 # 卷基层初始化方法
 CONV_KERNEL_INITIALIZER = {

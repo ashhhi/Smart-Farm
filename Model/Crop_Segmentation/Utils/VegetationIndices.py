@@ -4,9 +4,8 @@ import matplotlib.pyplot as plt
 
 
 class VegetationIndices:
-    def __init__(self, image_path):
-        self.image_path = image_path
-        self.image = cv2.imread(self.image_path)
+    def __init__(self, image):
+        self.image = image
         img1 = np.array(self.image, dtype='int')  # 转换成int型，不然会导致数据溢出
         self.B, self.G, self.R = cv2.split(img1)
         Bn = self.B / 255
@@ -23,40 +22,62 @@ class VegetationIndices:
         plt.subplot(131), plt.imshow(cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)), \
         plt.title('Original'), plt.axis('off')
         plt.subplot(132), plt.imshow(cv2.cvtColor(res, cv2.COLOR_BGR2RGB)), \
-        plt.title('ExG_gray'), plt.axis('off')
+        plt.title('Processed_Gray'), plt.axis('off')
         plt.subplot(133), plt.imshow(cv2.cvtColor(th2, cv2.COLOR_BGR2RGB)), \
         plt.title('OTSU_bw'), plt.axis('off')
         plt.show()
 
-    def ExG(self, isShow=True):
+    def ExG(self, isShow=False):
         res = 2 * self.g - self.r - self.b
-        [m, n] = res.shape
 
-        for i in range(m):
-            for j in range(n):
-                if res[i, j] < 0:
-                    res[i, j] = 0
-                elif res[i, j] > 1:
-                    res[i, j] = 1
-
-        res *= 255
         if isShow:
+            res = (res + 1) * 127.5
             self.show(res)
 
         return res
 
-    def ExGR(self, isShow=True):
+    def ExGR(self, isShow=False):
         ExRed = 1.4 * self.r - self.g
-        res = self.ExG(isShow=False) - ExRed * 255
+        res = self.ExG() - ExRed
+
         if isShow:
+            res = (res + 1) * 127.5
             self.show(res)
+
         return res
 
-    def NDI(self, isShow=True):
-        res = 128 * (((self.G - self.R) / (self.G + self.R)) + 1)
-        if isShow:
-            self.show(res)
-        return res
+if __name__ == '__main__':
 
-test = VegetationIndices('/Users/shijunshen/Documents/dataset/02 Testing Pool/Image_and_labels/Dataset/train/bokchoy_day_6_2_png.rf.8b54c9b8520710773901e4c0476df772.jpg')
-test.NDI()
+
+    image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Handle/Ice Plant(different resolution)/1600*1200/3721716968423_.pic.jpg'
+    img = cv2.imread(image_path)
+
+    test = VegetationIndices(img)
+    # test.NDI()
+
+    gray = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    ExG_img = (test.ExG() + 1) * 127.5
+    ExGR_img = (test.ExGR() + 1) * 127.5
+    # ExG_img = (test.ExG() + 1) / 2 * gray
+    # ExG_img = np.array(ExG_img, dtype='uint8')
+    # max_value = np.max(ExG_img)
+    # ExG_img = ExG_img.astype(float) / max_value * 255
+
+    # ExGR_img = (test.ExGR() + 1) / 2 * gray
+    # ExGR_img = np.array(ExGR_img, dtype='uint8')
+    # max_value = np.max(ExGR_img)
+    # ExGR_img = ExG_img.astype(float) / max_value * 255
+
+    ExG_img = np.array(ExG_img, dtype='uint8')  # 重新转换成uint8类型
+    ExGR_img = np.array(ExGR_img, dtype='uint8')
+
+    plt.figure(figsize=(10, 5), dpi=80)
+    plt.subplot(141), plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)), \
+    plt.title('Original'), plt.axis('off')
+    plt.subplot(142), plt.imshow(cv2.cvtColor(gray, cv2.COLOR_BGR2RGB)), \
+    plt.title('Gray'), plt.axis('off')
+    plt.subplot(143), plt.imshow(cv2.cvtColor(ExG_img, cv2.COLOR_BGR2RGB)), \
+    plt.title('Excess Green'), plt.axis('off')
+    plt.subplot(144), plt.imshow(cv2.cvtColor(ExGR_img, cv2.COLOR_BGR2RGB)), \
+    plt.title('Excess Green Red'), plt.axis('off')
+    plt.show()

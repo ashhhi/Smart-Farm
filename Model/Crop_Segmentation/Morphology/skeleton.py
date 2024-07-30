@@ -20,8 +20,10 @@ mean_thickness = np.mean(distance_transform[distance_transform > 0]) * 2
 print('Mean Thickness:', mean_thickness)
 
 # 显示结果
-cv2.imshow('Binary Image', image)
-cv2.imshow('Skeleton Image', skeleton)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+cv2.imwrite('skel1.jpg', image)
+cv2.imwrite('skel2.jpg', skeleton)
+# cv2.imshow('Binary Image', image)
+# cv2.imshow('Skeleton Image', skeleton)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 

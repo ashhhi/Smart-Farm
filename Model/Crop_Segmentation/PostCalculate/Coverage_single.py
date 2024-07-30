@@ -33,8 +33,7 @@ probability_vector = model.predict(image)
 max_prob_class_pot = np.argmax(probability_vector, axis=-1)
 num_pixels_pot = np.sum(max_prob_class_pot == 1)
 
-
-model = tf.keras.models.load_model('EfficientUnet3Plus7_200_epoch.h5')
+model = tf.keras.models.load_model('EfficientUnet3Plus.h5', custom_objects={"mIoU": mIoU})
 
 probability_vector = model.predict(image)
 # print(probability_vector.shape)

@@ -10,14 +10,13 @@ from tensorflow.keras.layers import Conv2D, GlobalMaxPool2D, Dense, Activation, 
 from tensorflow.keras import layers, Model
 from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, concatenate, Conv2DTranspose, BatchNormalization, Activation
 import yaml
-from Model.Crop_Segmentation.Model.Backbone import ResNet50
+from Model.Backbone import ResNet50
 
 
 with open('config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     Width = yaml_data['Train']['Image']['Width']
     Height = yaml_data['Train']['Image']['Height']
-    Attention = yaml_data['Train']['Module']['Attention']
     Class_Num = len(yaml_data['Train']['Class_Map'])
 
 # 卷基层初始化方法
@@ -109,7 +108,7 @@ def DeeplabV3(input_shape=(Height, Width, 3)):
     x = Activation('relu')(x)
     """"""
 
-    x = UpSampling2D(size=(8, 8), interpolation="bilinear")(x)
+    x = UpSampling2D(size=(16, 16), interpolation="bilinear")(x)
     x = Conv2D(filters=Class_Num, kernel_size=1, padding='SAME')(x)
     x = BatchNormalization()(x)
     x = Activation('softmax')(x)
