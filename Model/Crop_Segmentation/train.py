@@ -35,7 +35,7 @@ with open('config.yml', 'r') as file:
     label_path = yaml_data['Train']['label_path']
 
 
-if Model_Used == 'Unet':
+if Model_Used == 'UNet':
     from Model.Unet import Unet as create_model
 elif Model_Used == 'EfficientUnet':
     from Model.EfficientUnet import efficientnet
@@ -58,6 +58,8 @@ elif Model_Used == 'SegNet':
     from Model.SegNet import SegNet as create_model
 elif Model_Used == 'RefineNet':
     from Model.RefineNet import RefineNet as create_model
+elif Model_Used == 'UNet3+':
+    from Model.UNet3Plus import Unet as create_model
 else:
     from Model.Effi_Att_Unet3Plus_Det import efficientnet
     create_model = efficientnet()

@@ -58,7 +58,7 @@ def UnetDecoder(input, filters, stride, concat, dropout_rate):
 
 def Unet(input_shape=(Height, Width, 3),
                   dropout_rate=0.2,
-                base_filter = 32,
+                base_filter = 16,
                   activation="swish",
                   model_name="efficientnet"):
     img_input = layers.Input(shape=input_shape)
