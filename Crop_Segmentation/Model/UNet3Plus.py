@@ -178,7 +178,7 @@ def Unet(input_shape=(Height, Width, 3), dropouts=0.2, numFilters=16):
     # output5 = tf.keras.layers.Conv2D(1, (3, 3), kernel_initializer='he_normal', padding='same')(e5)
     # output5 = tf.keras.layers.Conv2DTranspose(1, (3, 3), strides=(16, 16), padding='same')(output5)
     # output5 = tf.multiply(output5, sort_layer)
-
+    output1 = Activation('softmax')(output1)
 
     # tmp = [output2, output3, output4, output5, output1]
     # outputs = []

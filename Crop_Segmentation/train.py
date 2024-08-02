@@ -4,8 +4,6 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 import os
 import cv2 as cv
 import tensorflow as tf
-# tf.data.experimental.enable_debug_mode()
-# tf.config.run_functions_eagerly(True)
 import yaml
 import platform
 from tqdm import tqdm
@@ -91,7 +89,7 @@ def preprocessing(image, label=False):
 def train():
     if pre_trained_weights:
         print('Load Pre Trained Weights:', pre_trained_weights)
-        model = tf.keras.models.load_model(f"Model_save/again/{pre_trained_weights}", custom_objects={'mIoU': mIoU, 'categorical_focal_fixed': categorical_focal})
+        model = tf.keras.models.load_model(f"Model_save/{pre_trained_weights}", custom_objects={'mIoU': mIoU, 'categorical_focal_fixed': categorical_focal})
     else:
         print('Create new Model')
         model = create_model()

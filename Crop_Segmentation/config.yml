@@ -25,7 +25,7 @@ Train:
   Epoch: 200
   Batch_Size: 8
 
-  # ['FCN', 'Unet', 'UNet3+', 'SegNet', 'RefineNet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus','SETR']
+  # ['FCN', 'UNet', 'UNet3+', 'SegNet', 'RefineNet', 'DeeplabV3', 'DeeplabV3Plus', 'EfficientUnet', 'EfficientUnet3Plus','SETR']
   Model_Used: 'UNet3+'
 
   # if '', There is no pre trained weights, else the name is in /Model_save/
@@ -34,11 +34,11 @@ Train:
 
 
 Predict:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/image"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/mask"
-  save_path: "/Users/shijunshen/Desktop/pred/againnnnnnn"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented_mask"
+  save_path: "/Users/shijunshen/Desktop/pred/brocolli"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'DeepLabV3_200.h5'
+  Pre_Trained_Weights: 'Effi.h5'
 
 
 
