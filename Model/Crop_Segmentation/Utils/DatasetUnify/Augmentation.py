@@ -23,12 +23,12 @@ noise = 0.02  # 2%
 # augmented_mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm/augmented_mask'
 
 # set the input folder path
-img_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/image'
-mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/mask'
+img_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/img'
+mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/mask'
 
 # set the output folder path
-augmented_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/augmented'
-augmented_mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/augmented_mask'
+augmented_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/augmented'
+augmented_mask_folder = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/augmented_mask'
 
 # Annotate Progress
 # set the folder path

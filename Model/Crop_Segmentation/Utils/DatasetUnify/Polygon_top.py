@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import numpy as np
 import yaml
@@ -8,8 +9,10 @@ import xml.etree.ElementTree as ET
 
 
 image_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/train'
+
+img_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/img'
 label_path = '/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/mask'
-with open('config.yml', 'r') as file:
+with open('/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/config.yml', 'r') as file:
     yaml_data = yaml.safe_load(file)
     class_map = yaml_data['Train']['Class_Map']
 
@@ -65,26 +68,9 @@ def polygon_to_mask(label_path, save_name):
     draw = ImageDraw.Draw(mask)
 
     # Set colors for stem and leaf
-    stem_color = tuple(class_map['Stem'])  # Red color
     leaf_color = tuple(class_map['Leaf'])  # Green color
-    potplant_color = tuple(class_map['Background'])
-
-    for item in potplant_polygons:
-        # Convert polygon points to integer tuples
-        polygon_points = [(int(x), int(y)) for x, y in item]
-
-        # Draw the polygon on the mask
-        draw.polygon(polygon_points, outline=potplant_color, fill=potplant_color)
-
-
-    # Draw stem polygons in red
-    for item in stem_polygons:
-        # Convert polygon points to integer tuples
-        polygon_points = [(int(x), int(y)) for x, y in item]
-
-        # Draw the polygon on the mask
-        draw.polygon(polygon_points, outline=stem_color, fill=stem_color)
-
+    if len(leaf_polygons) == 0:
+        return False
     # Draw leaf polygons in green
     for item in leaf_polygons:
         # Convert polygon points to integer tuples
@@ -92,10 +78,9 @@ def polygon_to_mask(label_path, save_name):
 
         # Draw the polygon on the mask
         draw.polygon(polygon_points, outline=leaf_color, fill=leaf_color)
-
-
     # Convert the mask to a NumPy array
     mask.save(save_name)
+    return True
 
 g = os.walk(image_path)
 image = []
@@ -103,4 +88,5 @@ label = []
 for path, dir_list, file_list in g:
     for file_name in file_list:
         if file_name.split('.')[-1] == 'xml':
-            polygon_to_mask(str(os.path.join(path, file_name)), str(os.path.join(label_path, str(file_name.replace('.xml', '.png')))))
+            if polygon_to_mask(str(os.path.join(path, file_name)), str(os.path.join(label_path, str(file_name.replace('.xml', '.png'))))):
+                shutil.copy(os.path.join(path, file_name.replace('.xml', '.jpg')), img_path)

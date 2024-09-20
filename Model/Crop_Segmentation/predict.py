@@ -28,7 +28,7 @@ with open('config.yml', 'r') as file:
 
     is_all = yaml_data['Predict']['all']
     pre_trained_weights = yaml_data['Predict']['Pre_Trained_Weights']
-    model_path = f"Model_save/again/{pre_trained_weights}"
+    model_path = f"{pre_trained_weights}"
     output_dir = os.path.join(yaml_data['Predict']['save_path'], model_path.split('/')[-1])
     class_map = yaml_data['Train']['Class_Map']
     image_path_ = yaml_data['Predict']['image_path']

@@ -2,8 +2,8 @@ Train:
 #  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/augmented"
 #  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/augmented_mask"
 
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Smart-Farm/augmented_mask"
+  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/augmented"
+  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Broccoli/side/augmented_mask"
 
   Image:
     Width: 320
@@ -15,12 +15,24 @@ Train:
   Class_Map: {
            Background: [0, 0, 0],
            Leaf: [0, 255, 0],
-           Stem: [238, 201, 0],
   }
+
+#  Class_Map: {
+#           Background: [0, 0, 0],
+#           Leaf: [0, 255, 0],
+#           Stem: [238, 201, 0],
+#  }
 #  Class_Map: {
 #            Background: [0, 0, 0],
 #            PotPlant: [255, 255, 255]
 #  }
+
+#  Class_Map: {
+#            Background: 0,
+#            Leaf: 1,
+#            Stem: 2,
+#  }
+
 
   Epoch: 200
   Batch_Size: 8
@@ -32,13 +44,12 @@ Train:
   Pre_Trained_Weights: ''
 
 
-
 Predict:
-  image_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/image"
-  label_path: "/Users/shijunshen/Documents/Code/dataset/Smart-Farm-All/Roboflow/v6/mask"
-  save_path: "/Users/shijunshen/Desktop/pred/againnnnnnn"
+  image_path: "/Users/shijunshen/Desktop/pred/HeightDetection"
+  label_path: ""
+  save_path: "/Users/shijunshen/Desktop/pred/"
   all: True # if True, predict all pics in save_path, else predict 10 pics.
-  Pre_Trained_Weights: 'DeepLabV3_200.h5'
+  Pre_Trained_Weights: '/Users/shijunshen/Documents/Code/PycharmProjects/Smart-Farm/Model/Crop_Segmentation/Model_save/DissertationBackup/EfficientUNet3Plus.h5'
 
 
 
